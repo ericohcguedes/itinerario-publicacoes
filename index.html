@@ -783,14 +783,14 @@
             <thead>
               <tr class="group-header">
                 <th></th>
-                <th class="tipo-group" colspan="3">Tipo de publicação</th>
+                <th class="tipo-group col-divider" colspan="3">Tipo de publicação</th>
                 <th class="mes-group col-divider" colspan="${BIMESTERS.length}">Bimestre (entrega)</th>
                 <th></th>
                 <th></th>
               </tr>
               <tr>
                 <th class="name-col">Publicador</th>
-                <th>Sentinela<br>Letra G.</th>
+                <th class="col-divider">Sentinela<br>Letra G.</th>
                 <th>Sentinela</th>
                 <th>Apostila</th>
                 ${BIMESTERS.map((b,i)=>`<th${i===0?' class="col-divider"':''}>${b.label}</th>`).join('')}
@@ -814,7 +814,7 @@
     return `
       <tr data-id="${p.id}">
         <td class="name-cell"><span class="nm" contenteditable="true" data-field="nome">${escapeHtml(p.nome)}</span></td>
-        <td>${stamp('sentinelaG', p.sentinelaG, 'tipo', 'Recebe Sentinela (letra G.)')}</td>
+        <td class="col-divider">${stamp('sentinelaG', p.sentinelaG, 'tipo', 'Recebe Sentinela (letra G.)')}</td>
         <td>${stamp('sentinela', p.sentinela, 'tipo', 'Recebe Sentinela')}</td>
         <td>${stamp('apostila', p.apostila, 'tipo', 'Recebe Apostila')}</td>
         ${BIMESTERS.map((b,i) => `<td${i===0?' class="col-divider"':''}>${stamp('mes:'+b.key, p.meses[b.key], '', 'Entregue em '+b.label)}</td>`).join('')}
