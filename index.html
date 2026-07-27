@@ -44,6 +44,25 @@
     margin-bottom:26px;
   }
   .hero-top{display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:16px;}
+  .hero-menu-row{ margin-bottom:14px; }
+  .menu-wrap{ position:relative; display:inline-block; }
+  .menu-toggle{ display:flex; align-items:center; gap:7px; }
+  .menu-dropdown{
+    display:none;
+    position:absolute; top:calc(100% + 8px); left:0; z-index:60;
+    background:var(--paper-card); border:1px solid var(--line);
+    border-radius:10px; box-shadow:0 12px 32px rgba(0,0,0,.28);
+    min-width:220px; padding:6px; flex-direction:column; gap:2px;
+  }
+  .menu-dropdown.open{ display:flex; }
+  .menu-item{
+    display:block; width:100%; text-align:left;
+    font-family:'IBM Plex Sans', sans-serif; font-size:13.5px; font-weight:600;
+    color:var(--ink); background:none; border:none; cursor:pointer;
+    padding:9px 10px; border-radius:7px;
+  }
+  .menu-item:hover{ background:var(--paper); }
+  .menu-divider{ height:1px; background:var(--line); margin:5px 4px; }
   .hero-title-block .eyebrow{
     font-family:'IBM Plex Mono', monospace;
     font-size:12px; letter-spacing:.14em; text-transform:uppercase;
@@ -404,21 +423,31 @@
 
 <header class="hero">
   <div class="wrap">
+    <div class="hero-menu-row">
+      <div class="menu-wrap">
+        <button class="btn menu-toggle" id="btnMenuToggle" aria-haspopup="true" aria-expanded="false">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Menu
+        </button>
+        <div class="menu-dropdown" id="menuDropdown">
+          <button class="menu-item" id="btnManageUsers" style="display:none;">Gerenciar acesso</button>
+          <button class="menu-item" id="btnLogout" style="display:none;">Sair</button>
+          <div class="menu-divider"></div>
+          <button class="menu-item" id="btnAddToggle">+ Adicionar publicador</button>
+          <div class="menu-divider"></div>
+          <button class="menu-item" id="btnPrint">Imprimir</button>
+          <button class="menu-item" id="btnExport">Exportar dados</button>
+          <button class="menu-item" id="btnImport">Importar dados</button>
+          <input type="file" id="fileImport" accept="application/json" class="sr-only">
+        </div>
+      </div>
+    </div>
     <div class="hero-top">
       <div class="hero-title-block">
         <p class="eyebrow">Congregação · Jardim do Vale</p>
         <h1>Itinerário de Publicações</h1>
-        <p class="sub">Sentinela, Sentinela Letra G., Apostila e Pedidos Especiais por publicador, bimestre a bimestre.</p>
+        <p class="sub">Sentinela, Sentinela Letra G., Apostila e Pedidos Especiais por publicador.</p>
         <p class="sync-status" id="syncStatus">● Verificando conexão…</p>
-      </div>
-      <div class="hero-actions">
-        <button class="btn" id="btnManageUsers" title="Criar acesso para outra pessoa" style="display:none;">Gerenciar acesso</button>
-        <button class="btn" id="btnLogout" title="Encerrar sessão" style="display:none;">Sair</button>
-        <button class="btn" id="btnPrint" title="Imprimir / salvar em PDF">Imprimir</button>
-        <button class="btn" id="btnExport" title="Baixar cópia dos dados em JSON">Exportar dados</button>
-        <button class="btn" id="btnImport" title="Carregar um arquivo JSON exportado antes">Importar dados</button>
-        <input type="file" id="fileImport" accept="application/json" class="sr-only">
-        <button class="btn brass" id="btnAddToggle">+ Adicionar publicador</button>
       </div>
     </div>
     <div class="stats" id="stats"></div>
@@ -943,6 +972,36 @@
   document.getElementById("filterGrupo").addEventListener('change', renderGroups);
   document.getElementById("filterTipo").addEventListener('change', renderGroups);
 
+  // Menu compacto (canto superior esquerdo)
+  const btnMenuToggle = document.getElementById("btnMenuToggle");
+  const menuDropdown = document.getElementById("menuDropdown");
+  if(btnMenuToggle && menuDropdown){
+    btnMenuToggle.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const willOpen = !menuDropdown.classList.contains('open');
+      menuDropdown.classList.toggle('open', willOpen);
+      btnMenuToggle.setAttribute('aria-expanded', String(willOpen));
+    });
+    menuDropdown.addEventListener('click', (e)=>{
+      if(e.target.closest('.menu-item')){
+        menuDropdown.classList.remove('open');
+        btnMenuToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.addEventListener('click', (e)=>{
+      if(!e.target.closest('.menu-wrap')){
+        menuDropdown.classList.remove('open');
+        btnMenuToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape'){
+        menuDropdown.classList.remove('open');
+        btnMenuToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
   document.getElementById("btnExpandAll").addEventListener('click', ()=>{
     collapsedGroups.clear(); renderGroups();
   });
@@ -1134,8 +1193,8 @@
       if(user){
         loginOverlay.style.display = 'none';
         appRoot.style.display = 'block';
-        btnLogout.style.display = 'inline-block';
-        if(btnManageUsers) btnManageUsers.style.display = 'inline-block';
+        btnLogout.style.display = 'block';
+        if(btnManageUsers) btnManageUsers.style.display = 'block';
         if(!appStarted){ appStarted = true; startApp(); }
       } else {
         loginOverlay.style.display = 'flex';
