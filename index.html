@@ -327,6 +327,30 @@
   .login-info{
     color:var(--teal-dark); font-size:13px; margin:-4px 0 14px; min-height:1em;
   }
+
+  /* ---------- Manage users overlay ---------- */
+  .manage-users-overlay{
+    position:fixed; inset:0; z-index:110;
+    background:rgba(20,28,38,.55);
+    display:flex; align-items:center; justify-content:center;
+    padding:20px;
+  }
+  .manage-users-card{
+    background:var(--paper-card);
+    border-radius:14px;
+    box-shadow:0 20px 60px rgba(0,0,0,.35);
+    padding:26px 28px 24px;
+    width:100%; max-width:400px;
+  }
+  .muc-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+  .muc-head h3{ font-family:'Fraunces', serif; font-weight:600; font-size:21px; margin:0; }
+  .muc-close{ background:none; border:none; cursor:pointer; font-size:16px; color:var(--ink-soft); padding:4px 8px; border-radius:6px; }
+  .muc-close:hover{ background:#f0f1ec; color:var(--ink); }
+  .muc-sub{ margin:0 0 18px; color:var(--ink-soft); font-size:13.5px; }
+  .muc-error{ color:var(--rust); font-size:13px; margin:-4px 0 14px; min-height:1em; }
+  .muc-info{ color:var(--teal-dark); font-size:13px; margin:-4px 0 14px; min-height:1em; }
+  .muc-note{ margin:16px 0 0; font-size:12px; color:var(--ink-soft); line-height:1.5; }
+  .muc-note a{ color:var(--teal-dark); }
   .login-error{
     color:var(--rust); font-size:13px; margin:-4px 0 14px; min-height:1em;
   }
@@ -338,7 +362,7 @@
 
   @media print{
     body{background:#fff;}
-    header.hero, .toolbar, .add-form, footer, .hero-actions, .login-overlay{display:none !important;}
+    header.hero, .toolbar, .add-form, footer, .hero-actions, .login-overlay, .manage-users-overlay{display:none !important;}
     .group{box-shadow:none; break-inside:avoid;}
     .stamp{border:1.5px solid #999;}
   }
@@ -382,12 +406,13 @@
   <div class="wrap">
     <div class="hero-top">
       <div class="hero-title-block">
-        <p class="eyebrow">Congregação · Circulação de literatura</p>
+        <p class="eyebrow">Congregação · Jardim do Vale</p>
         <h1>Itinerário de Publicações</h1>
-        <p class="sub">Jardim do Vale — controle de Sentinela, Sentinela (letra grande) e Apostila por publicador, bimestre a bimestre.</p>
+        <p class="sub">Sentinela, Sentinela Letra G., Apostila e Pedidos Especiais por publicador, bimestre a bimestre.</p>
         <p class="sync-status" id="syncStatus">● Verificando conexão…</p>
       </div>
       <div class="hero-actions">
+        <button class="btn" id="btnManageUsers" title="Criar acesso para outra pessoa" style="display:none;">Gerenciar acesso</button>
         <button class="btn" id="btnLogout" title="Encerrar sessão" style="display:none;">Sair</button>
         <button class="btn" id="btnPrint" title="Imprimir / salvar em PDF">Imprimir</button>
         <button class="btn" id="btnExport" title="Baixar cópia dos dados em JSON">Exportar dados</button>
@@ -399,6 +424,30 @@
     <div class="stats" id="stats"></div>
   </div>
 </header>
+
+<div id="manageUsersOverlay" class="manage-users-overlay" style="display:none;">
+  <div class="manage-users-card">
+    <div class="muc-head">
+      <h3>Gerenciar acesso</h3>
+      <button class="muc-close" id="btnCloseManageUsers" aria-label="Fechar">✕</button>
+    </div>
+    <p class="muc-sub">Crie um login (e-mail e senha) para outra pessoa acessar este site. Isso não afeta o seu próprio acesso.</p>
+    <form id="createUserForm">
+      <div class="field">
+        <label for="newUserEmail">E-mail da pessoa</label>
+        <input type="email" id="newUserEmail" required>
+      </div>
+      <div class="field">
+        <label for="newUserSenha">Senha inicial</label>
+        <input type="text" id="newUserSenha" minlength="6" required placeholder="Mínimo 6 caracteres">
+      </div>
+      <p class="muc-error" id="createUserError"></p>
+      <p class="muc-info" id="createUserInfo"></p>
+      <button type="submit" class="btn teal" id="btnCreateUser" style="width:100%;">Criar acesso</button>
+    </form>
+    <p class="muc-note">A pessoa pode trocar essa senha depois pelo link "Esqueci minha senha" na tela de login. Para remover o acesso de alguém, ainda é preciso ir no <a href="https://console.firebase.google.com" target="_blank" rel="noopener">console do Firebase</a> → Authentication → Users.</p>
+  </div>
+</div>
 
 <div class="wrap">
 
@@ -984,9 +1033,76 @@
   const loginInfo = document.getElementById('loginInfo');
   const btnLogin = document.getElementById('btnLogin');
   const btnLogout = document.getElementById('btnLogout');
+  const btnManageUsers = document.getElementById('btnManageUsers');
+  const manageUsersOverlay = document.getElementById('manageUsersOverlay');
+  const btnCloseManageUsers = document.getElementById('btnCloseManageUsers');
+  const createUserForm = document.getElementById('createUserForm');
+  const createUserError = document.getElementById('createUserError');
+  const createUserInfo = document.getElementById('createUserInfo');
+  const btnCreateUser = document.getElementById('btnCreateUser');
   const loginSenhaInput = document.getElementById('loginSenha');
   const btnTogglePw = document.getElementById('btnTogglePw');
   const linkForgotPw = document.getElementById('linkForgotPw');
+
+  // Abrir/fechar o modal de gerenciar acesso
+  if(btnManageUsers){
+    btnManageUsers.addEventListener('click', ()=>{
+      createUserError.textContent = '';
+      createUserInfo.textContent = '';
+      createUserForm.reset();
+      manageUsersOverlay.style.display = 'flex';
+    });
+  }
+  if(btnCloseManageUsers){
+    btnCloseManageUsers.addEventListener('click', ()=> manageUsersOverlay.style.display = 'none');
+  }
+  if(manageUsersOverlay){
+    manageUsersOverlay.addEventListener('click', (e)=>{
+      if(e.target === manageUsersOverlay) manageUsersOverlay.style.display = 'none';
+    });
+  }
+  if(createUserForm){
+    createUserForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      createUserError.textContent = '';
+      createUserInfo.textContent = '';
+      const email = document.getElementById('newUserEmail').value.trim();
+      const senha = document.getElementById('newUserSenha').value;
+      btnCreateUser.disabled = true;
+      btnCreateUser.textContent = 'Criando…';
+
+      // Usa um app Firebase secundário só para criar o usuário,
+      // assim a sua própria sessão logada não é substituída pela da pessoa nova.
+      let secondaryApp;
+      try{
+        secondaryApp = firebase.initializeApp(FIREBASE_CONFIG, 'Secondary-' + Date.now());
+      }catch(err){
+        createUserError.textContent = 'Não foi possível iniciar a criação. Tente novamente.';
+        btnCreateUser.disabled = false;
+        btnCreateUser.textContent = 'Criar acesso';
+        return;
+      }
+      const secondaryAuth = secondaryApp.auth();
+      secondaryAuth.createUserWithEmailAndPassword(email, senha)
+        .then(()=>{
+          createUserInfo.textContent = 'Acesso criado para ' + email + '. Já pode compartilhar o e-mail e a senha com a pessoa.';
+          createUserForm.reset();
+        })
+        .catch(err=>{
+          const msgs = {
+            'auth/email-already-in-use': 'Já existe um usuário com esse e-mail.',
+            'auth/invalid-email': 'E-mail inválido.',
+            'auth/weak-password': 'Senha muito fraca (use pelo menos 6 caracteres).'
+          };
+          createUserError.textContent = msgs[err.code] || 'Não foi possível criar o acesso. Tente novamente.';
+        })
+        .finally(()=>{
+          btnCreateUser.disabled = false;
+          btnCreateUser.textContent = 'Criar acesso';
+          secondaryAuth.signOut().finally(()=> secondaryApp.delete());
+        });
+    });
+  }
 
   // Mostrar/ocultar senha
   if(btnTogglePw){
@@ -1010,6 +1126,7 @@
     loginOverlay.style.display = 'none';
     appRoot.style.display = 'block';
     btnLogout.style.display = 'none';
+    if(btnManageUsers) btnManageUsers.style.display = 'none';
     startApp();
   } else {
     let appStarted = false;
@@ -1018,10 +1135,12 @@
         loginOverlay.style.display = 'none';
         appRoot.style.display = 'block';
         btnLogout.style.display = 'inline-block';
+        if(btnManageUsers) btnManageUsers.style.display = 'inline-block';
         if(!appStarted){ appStarted = true; startApp(); }
       } else {
         loginOverlay.style.display = 'flex';
         appRoot.style.display = 'none';
+        if(manageUsersOverlay) manageUsersOverlay.style.display = 'none';
       }
     });
 
