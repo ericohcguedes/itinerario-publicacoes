@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Itinerário de Publicações — Jardim do Vale</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1E2A38;
+    --ink-soft:#48586A;
+    --paper:#EEF1EC;
+    --paper-card:#FFFFFF;
+    --line:#D8DCD3;
+    --brass:#B8892B;
+    --brass-dark:#8f6a1f;
+    --teal:#2F6E6A;
+    --teal-dark:#204e4b;
+    --rust:#A6423B;
+    --rust-dark:#7e312c;
+    --shadow: 0 1px 2px rgba(30,42,56,.06), 0 4px 14px rgba(30,42,56,.06);
+    --radius: 10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 10% -10%, #f4ede0 0%, transparent 60%),
+      var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', system-ui, sans-serif;
+    min-height:100vh;
+    padding-bottom:80px;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px;}
+
+  /* ---------- Header / Hero ---------- */
+  header.hero{
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, #1E2A38 0%, #223347 100%);
+    color:#F3EFE3;
+    padding:34px 0 26px;
+    margin-bottom:26px;
+  }
+  .hero-top{display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:16px;}
+  .hero-title-block .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--brass); margin:0 0 6px;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(28px,4vw,40px);
+    margin:0 0 4px;
+    letter-spacing:-0.01em;
+  }
+  .hero-title-block p.sub{
+    margin:0; color:#C9D2C6; font-size:14.5px; max-width:52ch;
+  }
+  .sync-status{
+    margin:10px 0 0; font-family:'IBM Plex Mono', monospace; font-size:11.5px;
+    letter-spacing:.03em; color:#B9C2B6;
+  }
+  .sync-status.ok{ color:#7fd4c9; }
+  .sync-status.warn{ color:#e59a94; }
+  .hero-actions{display:flex; gap:8px; flex-wrap:wrap;}
+  .btn{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:13.5px; font-weight:600;
+    border:1px solid rgba(255,255,255,.22);
+    background:rgba(255,255,255,.06);
+    color:#F3EFE3;
+    padding:9px 14px;
+    border-radius:8px;
+    cursor:pointer;
+    transition:background .15s ease, transform .1s ease;
+    white-space:nowrap;
+  }
+  .btn:hover{background:rgba(255,255,255,.14);}
+  .btn:active{transform:translateY(1px);}
+  .btn.brass{background:var(--brass); border-color:var(--brass); color:#20180a;}
+  .btn.brass:hover{background:var(--brass-dark);}
+  .btn.ghost-dark{background:transparent; color:var(--ink-soft); border-color:var(--line);}
+  .btn.ghost-dark:hover{background:#fff;}
+  .btn.danger-outline{background:transparent; border-color:#e3c6c3; color:var(--rust);}
+  .btn.danger-outline:hover{background:#fbeceb;}
+  .btn.small{padding:6px 10px; font-size:12.5px;}
+
+  /* ---------- Stat cards ---------- */
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(128px,1fr));
+    gap:10px;
+    margin-top:24px;
+  }
+  .stat{
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:10px;
+    padding:12px 14px;
+  }
+  .stat .num{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:26px; font-weight:600; color:#fff; line-height:1;
+  }
+  .stat .lbl{font-size:11.5px; color:#B9C2B6; margin-top:6px; letter-spacing:.02em;}
+  .stat.accent .num{color:var(--brass);}
+  .stat.accent2 .num{color:#7fd4c9;}
+  .stat.warn .num{color:#e59a94;}
+
+  /* ---------- Toolbar ---------- */
+  .toolbar{
+    display:flex; gap:12px; align-items:center; flex-wrap:wrap;
+    background:var(--paper-card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:14px 16px;
+    box-shadow:var(--shadow);
+    margin-bottom:22px;
+  }
+  .toolbar input[type="text"], .toolbar select{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:14px;
+    padding:9px 11px;
+    border:1px solid var(--line);
+    border-radius:7px;
+    background:#fbfbf8;
+    color:var(--ink);
+  }
+  .toolbar input[type="text"]:focus, .toolbar select:focus{
+    outline:2px solid var(--teal); outline-offset:1px;
+  }
+  #search{min-width:220px; flex:1;}
+  .toolbar .divider{width:1px; height:26px; background:var(--line); margin:0 2px;}
+  .toolbar-right{display:flex; gap:8px; margin-left:auto; flex-wrap:wrap;}
+  .btn.light{background:var(--paper); color:var(--ink); border:1px solid var(--line);}
+  .btn.light:hover{background:#e4e8df;}
+  .btn.teal{background:var(--teal); color:#fff; border-color:var(--teal);}
+  .btn.teal:hover{background:var(--teal-dark);}
+
+  /* ---------- Add publisher form ---------- */
+  .add-form{
+    background:var(--paper-card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:16px;
+    margin-bottom:24px;
+    display:none;
+  }
+  .add-form.open{display:block;}
+  .add-form h3{
+    font-family:'Fraunces', serif; font-size:17px; margin:0 0 12px; font-weight:600;
+  }
+  .add-grid{
+    display:grid;
+    grid-template-columns: 1.1fr 1.4fr 2fr auto;
+    gap:12px;
+    align-items:end;
+  }
+  @media (max-width: 800px){ .add-grid{grid-template-columns:1fr;} }
+  .field label{display:block; font-size:12px; color:var(--ink-soft); margin-bottom:5px; font-weight:600;}
+  .field input, .field select{
+    width:100%; font-size:14px; padding:9px 10px; border:1px solid var(--line);
+    border-radius:7px; background:#fbfbf8; font-family:'IBM Plex Sans',sans-serif;
+  }
+  .tipo-check-group{display:flex; gap:14px; flex-wrap:wrap; padding-top:4px;}
+  .tipo-check{display:flex; align-items:center; gap:6px; font-size:13.5px;}
+
+  /* ---------- Group sections ---------- */
+  .group{
+    background:var(--paper-card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    margin-bottom:16px;
+    overflow:hidden;
+  }
+  .group-head{
+    display:flex; align-items:center; gap:12px;
+    padding:13px 18px;
+    cursor:pointer;
+    background:linear-gradient(180deg,#fbfbf8,#f4f5f0);
+    border-bottom:1px solid var(--line);
+    user-select:none;
+  }
+  .group-head .chev{
+    font-size:11px; color:var(--ink-soft); transition:transform .18s ease;
+  }
+  .group.collapsed .chev{ transform:rotate(-90deg); }
+  .group-head h2{
+    font-family:'Fraunces', serif; font-weight:600; font-size:17px; margin:0; letter-spacing:-.01em;
+  }
+  .group-head .count-pill{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px; background:#e7e9e1; color:var(--ink-soft);
+    padding:2px 9px; border-radius:100px; margin-left:2px;
+  }
+  .group-body{ }
+  .group.collapsed .group-body{display:none;}
+
+  table.roster{ width:100%; border-collapse:collapse; }
+  table.roster thead tr.group-header th{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--ink-soft); text-align:center; font-weight:700;
+    padding:7px 6px 5px; background:#f2f3ec; border-bottom:1px solid var(--line);
+  }
+  table.roster thead tr.group-header th.tipo-group{ color:var(--brass-dark); }
+  table.roster thead tr.group-header th.mes-group{ color:var(--teal-dark); }
+  table.roster thead th{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--ink-soft); text-align:center; font-weight:600;
+    padding:10px 6px; border-bottom:1px solid var(--line);
+    background:#fafaf7;
+  }
+  table.roster thead th.name-col{text-align:left; padding-left:18px;}
+  table.roster th.col-divider, table.roster td.col-divider{ border-left:2px solid var(--line); }
+  table.roster tbody td{
+    padding:10px 6px; text-align:center; border-bottom:1px solid #eceee8; vertical-align:middle;
+  }
+  table.roster tbody tr:last-child td{border-bottom:none;}
+  table.roster tbody tr:hover{background:#f7f8f3;}
+  td.name-cell{ text-align:left; padding-left:18px; }
+  td.name-cell .nm{ font-size:14.5px; font-weight:600; color:var(--ink); }
+  td.name-cell .nm[contenteditable="true"]{
+    outline:none; border-bottom:1px dashed transparent; cursor:text;
+  }
+  td.name-cell .nm[contenteditable="true"]:hover{ border-bottom-color:var(--line); }
+  td.name-cell .nm[contenteditable="true"]:focus{ border-bottom-color:var(--teal); }
+
+  /* Stamp checkbox */
+  .stamp{
+    position:relative; width:26px; height:26px; margin:0 auto;
+    border-radius:7px;
+    border:2px solid #cfd3c8;
+    background:#fff;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:border-color .15s ease, background .15s ease, transform .1s ease;
+  }
+  .stamp:hover{border-color:var(--teal);}
+  .stamp:active{transform:scale(.92);}
+  .stamp svg{opacity:0; transform:scale(.6); transition:opacity .12s ease, transform .16s cubic-bezier(.34,1.56,.64,1);}
+  .stamp.on{ border-color:var(--teal); background:var(--teal); }
+  .stamp.on svg{opacity:1; transform:scale(1);}
+  .stamp.on svg path{stroke:#fff;}
+  .stamp.cancel.on{ border-color:var(--rust); background:var(--rust); }
+  .stamp.cancel.on svg path{stroke:#fff;}
+  .stamp.tipo.on{ border-color:var(--brass-dark); background:var(--brass); }
+  .stamp.tipo.on svg path{stroke:#3a2c0c;}
+
+  td.actions-cell{ width:34px; }
+  .del-btn{
+    background:none; border:none; cursor:pointer; color:#b7bdb0; font-size:16px; line-height:1;
+    padding:4px; border-radius:6px;
+  }
+  .del-btn:hover{ color:var(--rust); background:#fbecea; }
+
+  .empty-msg{ padding:26px 18px; color:var(--ink-soft); font-size:14px; text-align:center; }
+
+  /* ---------- Progress summary strip ---------- */
+  .progress-strip{
+    background:var(--paper-card); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:18px 20px; margin-bottom:24px;
+  }
+  .progress-strip h3{ font-family:'Fraunces', serif; font-size:16px; margin:0 0 14px; font-weight:600;}
+  .bimester-row{display:flex; flex-direction:column; gap:12px;}
+  .bim-item{display:grid; grid-template-columns:96px 1fr 46px; align-items:center; gap:12px;}
+  .bim-item .bim-label{ font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft); font-weight:600;}
+  .bim-bar-track{ height:9px; background:#e9ebe4; border-radius:100px; overflow:hidden; }
+  .bim-bar-fill{ height:100%; background:linear-gradient(90deg, var(--teal), #4a9b93); border-radius:100px; transition:width .3s ease; }
+  .bim-item .bim-count{ font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft); text-align:right; }
+
+  footer{
+    text-align:center; color:var(--ink-soft); font-size:12.5px; padding:30px 20px 10px;
+  }
+  footer a{color:var(--teal-dark);}
+
+  .sr-only{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+    clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+
+  /* ---------- Login overlay ---------- */
+  .login-overlay{
+    position:fixed; inset:0; z-index:100;
+    background:
+      radial-gradient(1200px 600px at 10% -10%, #2a3c4f 0%, transparent 60%),
+      #1E2A38;
+    display:flex; align-items:center; justify-content:center;
+    padding:20px;
+  }
+  .login-card{
+    background:var(--paper-card);
+    border-radius:14px;
+    box-shadow:0 20px 60px rgba(0,0,0,.35);
+    padding:32px 30px 28px;
+    width:100%; max-width:360px;
+  }
+  .login-card .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--brass-dark); margin:0 0 6px;
+  }
+  .login-card h2{
+    font-family:'Fraunces', serif; font-weight:600; font-size:26px; margin:0 0 6px;
+  }
+  .login-sub{ margin:0 0 20px; color:var(--ink-soft); font-size:13.5px; }
+  .login-card .field{ margin-bottom:14px; }
+  .password-field{ position:relative; }
+  .password-field input{ padding-right:42px; }
+  .toggle-pw{
+    position:absolute; right:4px; top:50%; transform:translateY(-50%);
+    width:32px; height:32px; border:none; background:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--ink-soft); border-radius:6px;
+  }
+  .toggle-pw:hover{ color:var(--teal); background:#f0f1ec; }
+  .forgot-pw-row{ text-align:right; margin:-8px 0 14px; }
+  .forgot-pw-row a{
+    font-size:12.5px; color:var(--teal-dark); text-decoration:none; cursor:pointer;
+  }
+  .forgot-pw-row a:hover{ text-decoration:underline; }
+  .login-info{
+    color:var(--teal-dark); font-size:13px; margin:-4px 0 14px; min-height:1em;
+  }
+  .login-error{
+    color:var(--rust); font-size:13px; margin:-4px 0 14px; min-height:1em;
+  }
+  @media (max-width: 700px){
+    table.roster{font-size:12px;}
+    .stamp{ width:28px; height:28px; }
+    td.name-cell .nm{font-size:13.5px;}
+  }
+
+  @media print{
+    body{background:#fff;}
+    header.hero, .toolbar, .add-form, footer, .hero-actions, .login-overlay{display:none !important;}
+    .group{box-shadow:none; break-inside:avoid;}
+    .stamp{border:1.5px solid #999;}
+  }
+</style>
+</head>
+<body>
+
+<div id="loginOverlay" class="login-overlay" style="display:none;">
+  <div class="login-card">
+    <p class="eyebrow">Congregação · Jardim do Vale</p>
+    <h2>Entrar</h2>
+    <p class="login-sub">Acesso restrito a quem cuida do itinerário de publicações.</p>
+    <form id="loginForm">
+      <div class="field">
+        <label for="loginEmail">E-mail</label>
+        <input type="email" id="loginEmail" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="loginSenha">Senha</label>
+        <div class="password-field">
+          <input type="password" id="loginSenha" autocomplete="current-password" required>
+          <button type="button" class="toggle-pw" id="btnTogglePw" title="Mostrar senha" aria-label="Mostrar senha">
+            <svg class="eye-open" width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/></svg>
+            <svg class="eye-closed" width="19" height="19" viewBox="0 0 24 24" fill="none" style="display:none;"><path d="M3 3l18 18M10.6 10.7a3 3 0 0 0 4.2 4.2M7.4 7.5C4.8 9 3 12 3 12s4 7 11 7c2 0 3.7-.5 5.1-1.3M14.6 6.1C13.8 6 13 6 12 6 5 6 1 12 1 12s0 0 1.6 2.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="forgot-pw-row">
+        <a href="#" id="linkForgotPw">Esqueci minha senha</a>
+      </div>
+      <p class="login-error" id="loginError"></p>
+      <p class="login-info" id="loginInfo"></p>
+      <button type="submit" class="btn teal" id="btnLogin" style="width:100%;">Entrar</button>
+    </form>
+  </div>
+</div>
+
+<div id="appRoot" style="display:none;">
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-top">
+      <div class="hero-title-block">
+        <p class="eyebrow">Congregação · Circulação de literatura</p>
+        <h1>Itinerário de Publicações</h1>
+        <p class="sub">Jardim do Vale — controle de Sentinela, Sentinela (letra grande) e Apostila por publicador, bimestre a bimestre.</p>
+        <p class="sync-status" id="syncStatus">● Verificando conexão…</p>
+      </div>
+      <div class="hero-actions">
+        <button class="btn" id="btnLogout" title="Encerrar sessão" style="display:none;">Sair</button>
+        <button class="btn" id="btnPrint" title="Imprimir / salvar em PDF">Imprimir</button>
+        <button class="btn" id="btnExport" title="Baixar cópia dos dados em JSON">Exportar dados</button>
+        <button class="btn" id="btnImport" title="Carregar um arquivo JSON exportado antes">Importar dados</button>
+        <input type="file" id="fileImport" accept="application/json" class="sr-only">
+        <button class="btn brass" id="btnAddToggle">+ Adicionar publicador</button>
+      </div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="add-form" id="addForm">
+    <h3>Novo publicador</h3>
+    <div class="add-grid">
+      <div class="field">
+        <label for="inGrupo">Grupo</label>
+        <input type="text" id="inGrupo" list="gruposList" placeholder="Ex.: Antioquia">
+        <datalist id="gruposList"></datalist>
+      </div>
+      <div class="field">
+        <label for="inNome">Nome do publicador</label>
+        <input type="text" id="inNome" placeholder="Ex.: Maria Cleide">
+      </div>
+      <div class="field">
+        <label>Tipo de publicação</label>
+        <div class="tipo-check-group">
+          <label class="tipo-check"><input type="checkbox" id="inSentinelaG"> Sentinela (letra G.)</label>
+          <label class="tipo-check"><input type="checkbox" id="inSentinela"> Sentinela</label>
+          <label class="tipo-check"><input type="checkbox" id="inApostila"> Apostila</label>
+        </div>
+      </div>
+      <div class="field">
+        <button class="btn teal" id="btnSave" style="width:100%;">Adicionar à lista</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input type="text" id="search" placeholder="Buscar por nome ou grupo…">
+    <select id="filterGrupo"><option value="">Todos os grupos</option></select>
+    <select id="filterTipo">
+      <option value="">Todas as publicações</option>
+      <option value="sentinelaG">Sentinela (letra G.)</option>
+      <option value="sentinela">Sentinela</option>
+      <option value="apostila">Apostila</option>
+      <option value="cancelado">Cancelados</option>
+    </select>
+    <div class="divider"></div>
+    <div class="toolbar-right">
+      <button class="btn light" id="btnExpandAll">Expandir tudo</button>
+      <button class="btn light" id="btnCollapseAll">Recolher tudo</button>
+      <button class="btn danger-outline" id="btnReset">Restaurar planilha original</button>
+    </div>
+  </div>
+
+  <div class="progress-strip">
+    <h3>Entrega por bimestre</h3>
+    <div class="bimester-row" id="bimesterProgress"></div>
+  </div>
+
+  <div id="groupsContainer"></div>
+
+</div>
+
+<footer>
+  Dados salvos automaticamente neste navegador (localStorage). Use <strong>Exportar dados</strong> regularmente para ter um backup e para compartilhar com outra pessoa/dispositivo.
+</footer>
+
+</div><!-- /#appRoot -->
+
+<!--
+  ============================================================================
+  SINCRONIZAÇÃO EM TEMPO REAL (Firebase) — opcional, mas recomendado
+  ============================================================================
+  Sem isso, cada pessoa só vê as marcações feitas no PRÓPRIO navegador.
+  Com isso, todo mundo que abrir o link vê e edita os mesmos dados, ao vivo.
+
+  Passo a passo para ativar (grátis, ~10 min):
+    1. Acesse https://console.firebase.google.com e crie um projeto (plano gratuito "Spark").
+    2. No menu lateral, vá em "Compilação" → "Firestore Database" → "Criar banco de dados".
+       Escolha o modo produção e a região "southamerica-east1 (São Paulo)".
+    3. Em "Regras" (Rules) do Firestore, cole exatamente isto e publique:
+
+       rules_version = '2';
+       service cloud.firestore {
+         match /databases/{database}/documents {
+           match /itinerario/{doc} {
+             allow read, write: if true;
+           }
+         }
+       }
+
+       (Isso libera leitura/escrita para quem tiver o link do site. Como não há
+       dados sensíveis aqui, é uma opção razoável para começar — mas qualquer
+       pessoa com o link do site pode editar os dados.)
+    4. Vá em "Configurações do projeto" (ícone de engrenagem) → aba "Geral" →
+       role até "Seus apps" → clique no ícone "</>" (Web) → registre um app
+       (não precisa marcar Firebase Hosting) → copie o objeto de configuração.
+    5. Cole os valores copiados dentro de FIREBASE_CONFIG logo abaixo,
+       substituindo os textos "COLE_AQUI".
+    6. Suba o arquivo atualizado no GitHub. Pronto — a sincronização liga sozinha.
+
+  Se você não preencher o FIREBASE_CONFIG, o site continua funcionando
+  normalmente, só que salvando cada marcação apenas no navegador local
+  (como já era antes), sem compartilhar entre pessoas.
+-->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---- COLE AQUI a configuração copiada do Firebase (passo 4/5 acima) ----
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyCpEnGGhoggwdReyi88a6g3ibMDJPL-q1M",
+    authDomain: "itinerario-publicacoes.firebaseapp.com",
+    projectId: "itinerario-publicacoes",
+    storageBucket: "itinerario-publicacoes.firebasestorage.app",
+    messagingSenderId: "840805033874",
+    appId: "1:840805033874:web:0dbf263ab1d7169ed3434b"
+  };
+  const FIREBASE_ENABLED = FIREBASE_CONFIG.apiKey !== "COLE_AQUI";
+
+  let db = null;
+  let auth = null;
+  let docRef = null;
+  let suppressNextWrite = false; // evita reescrever ao receber eco do próprio Firestore
+
+  if(FIREBASE_ENABLED){
+    try{
+      firebase.initializeApp(FIREBASE_CONFIG);
+      db = firebase.firestore();
+      auth = firebase.auth();
+      docRef = db.collection('itinerario').doc('estado');
+    }catch(e){
+      console.warn("Falha ao iniciar Firebase, seguindo em modo local.", e);
+    }
+  }
+
+  const STORAGE_KEY = "itinerarioPublicacoes_v1";
+  const BIMESTERS = [
+    {key:"janfev", label:"Jan–Fev"},
+    {key:"marabr", label:"Mar–Abr"},
+    {key:"maijun", label:"Mai–Jun"},
+    {key:"julago", label:"Jul–Ago"},
+    {key:"setout", label:"Set–Out"},
+    {key:"novdez", label:"Nov–Dez"}
+  ];
+  const GROUP_ORDER = ["Antioquia","Canaã","Éden","Damasco","Eufrates","Macedônia","Orebe","Sinai"];
+
+  function emptyMeses(){
+    const m = {};
+    BIMESTERS.forEach(b => m[b.key] = false);
+    return m;
+  }
+
+  function defaultData(){
+    const rows = [
+      ["Antioquia","Maria Cleide", false,true,true],
+      ["Canaã","Cida Navas", false,true,true],
+      ["Canaã","Dalva Torres", false,true,true],
+      ["Éden","Sara Silva", false,true,false],
+      ["Éden","Vera Oliveira", false,true,true],
+      ["Damasco","Jeane Santos", true,false,true],
+      ["Damasco","Vera Pinhateli", false,true,true],
+      ["Eufrates","Dejair Pereira", false,false,true],
+      ["Macedônia","José Coelho", false,true,true],
+      ["Macedônia","Waldete Souza", false,true,false],
+      ["Orebe","Abel Duarte", false,true,true],
+      ["Orebe","Vanderlei Felippe", false,true,true],
+      ["Orebe","Zilda Costa", true,false,false],
+      ["Sinai","Regiane Ramos", false,true,true],
+      ["Sinai","Terezinha Silva", true,false,true],
+      ["Sinai","Alexandre", false,false,true],
+      ["Sem grupo","Célio (Estudante)", true,false,false]
+    ];
+    return rows.map(r => ({
+      id: cryptoId(),
+      grupo: r[0],
+      nome: r[1],
+      sentinelaG: r[2],
+      sentinela: r[3],
+      apostila: r[4],
+      cancelado: false,
+      meses: emptyMeses()
+    }));
+  }
+
+  function cryptoId(){
+    return 'p_' + Math.random().toString(36).slice(2,10) + Date.now().toString(36);
+  }
+
+  let data = [];
+  let collapsedGroups = new Set();
+
+  function load(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        const parsed = JSON.parse(raw);
+        if(Array.isArray(parsed) && parsed.length){
+          data = parsed.map(p => ({...p, meses: {...emptyMeses(), ...(p.meses||{})}}));
+          return;
+        }
+      }
+    }catch(e){ console.warn("Falha ao ler dados salvos, usando padrão.", e); }
+    data = defaultData();
+    if(!FIREBASE_ENABLED) save(); // sem nuvem configurada, já grava local. Com nuvem, quem decide é setupCloudSync()
+  }
+
+  function save(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+    catch(e){ console.warn("Não foi possível salvar (localStorage indisponível).", e); }
+
+    if(FIREBASE_ENABLED && docRef){
+      suppressNextWrite = true; // esse write vai gerar um eco no onSnapshot; ignoramos esse eco
+      setSyncStatus('syncing');
+      docRef.set({ publicadores: data, atualizadoEm: firebase.firestore.FieldValue.serverTimestamp() })
+        .then(()=> setSyncStatus('ok'))
+        .catch(err=>{
+          console.warn("Falha ao sincronizar com o Firestore.", err);
+          setSyncStatus('warn', 'Não sincronizou — salvo só neste navegador.');
+        });
+    }
+  }
+
+  function setSyncStatus(kind, customMsg){
+    const el = document.getElementById('syncStatus');
+    if(!el) return;
+    if(!FIREBASE_ENABLED){
+      el.className = 'sync-status';
+      el.textContent = '○ Modo local — só neste navegador (configure o Firebase para sincronizar entre pessoas)';
+      return;
+    }
+    if(kind === 'syncing'){ el.className = 'sync-status'; el.textContent = '● Sincronizando…'; }
+    else if(kind === 'ok'){ el.className = 'sync-status ok'; el.textContent = '● Sincronizado — todo mundo vê as mesmas marcações'; }
+    else if(kind === 'warn'){ el.className = 'sync-status warn'; el.textContent = '● ' + (customMsg || 'Sem conexão — mudanças salvas só neste navegador por enquanto'); }
+  }
+
+  function setupCloudSync(onFirstData){
+    if(!FIREBASE_ENABLED || !docRef){
+      setSyncStatus();
+      onFirstData();
+      return;
+    }
+    setSyncStatus('syncing');
+    let receivedFirst = false;
+    docRef.onSnapshot(snap=>{
+      if(suppressNextWrite){ suppressNextWrite = false; setSyncStatus('ok'); if(!receivedFirst){ receivedFirst = true; onFirstData(); } return; }
+      if(snap.exists){
+        const remote = snap.data().publicadores || [];
+        data = remote.map(p => ({...p, meses: {...emptyMeses(), ...(p.meses||{})}}));
+        try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }catch(e){}
+      } else if(!receivedFirst){
+        // banco vazio: envia os dados locais/padrão como base inicial
+        docRef.set({ publicadores: data, atualizadoEm: firebase.firestore.FieldValue.serverTimestamp() }).catch(()=>{});
+      }
+      setSyncStatus('ok');
+      if(!receivedFirst){ receivedFirst = true; onFirstData(); }
+      else { render(); }
+    }, err=>{
+      console.warn("Sem conexão com o Firestore, seguindo em modo local.", err);
+      setSyncStatus('warn');
+      if(!receivedFirst){ receivedFirst = true; onFirstData(); }
+    });
+  }
+
+  function groupOrderIndex(g){
+    const i = GROUP_ORDER.indexOf(g);
+    return i === -1 ? GROUP_ORDER.length + 1 : i;
+  }
+
+  function checkSvg(){
+    return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 12.5L9.5 18L20 6" stroke="#2F6E6A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  }
+  function dotSvg(){
+    return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="6" stroke="#2F6E6A" stroke-width="3"/></svg>';
+  }
+  function xSvg(){
+    return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 5L19 19M19 5L5 19" stroke="#A6423B" stroke-width="2.6" stroke-linecap="round"/></svg>';
+  }
+
+  function stamp(kind, on, extraClass, title){
+    return `<span class="stamp ${extraClass||''} ${on?'on':''}" data-kind="${kind}" title="${title||''}" role="checkbox" aria-checked="${on}" tabindex="0">${on ? (kind==='cancel'? xSvg() : checkSvg()) : ''}</span>`;
+  }
+
+  function render(){
+    renderStats();
+    renderFilters();
+    renderBimesterProgress();
+    renderGroups();
+  }
+
+  function renderStats(){
+    const total = data.length;
+    const sentinelaG = data.filter(p=>p.sentinelaG).length;
+    const sentinela = data.filter(p=>p.sentinela).length;
+    const apostila = data.filter(p=>p.apostila).length;
+    const cancelados = data.filter(p=>p.cancelado).length;
+    const el = document.getElementById("stats");
+    el.innerHTML = `
+      <div class="stat"><div class="num">${total}</div><div class="lbl">PUBLICADORES</div></div>
+      <div class="stat accent"><div class="num">${sentinelaG}</div><div class="lbl">SENTINELA LETRA G.</div></div>
+      <div class="stat accent2"><div class="num">${sentinela}</div><div class="lbl">SENTINELA</div></div>
+      <div class="stat accent2"><div class="num">${apostila}</div><div class="lbl">APOSTILA</div></div>
+      <div class="stat warn"><div class="num">${cancelados}</div><div class="lbl">CANCELADOS</div></div>
+    `;
+  }
+
+  function renderFilters(){
+    const sel = document.getElementById("filterGrupo");
+    const currentVal = sel.value;
+    const groups = Array.from(new Set(data.map(p=>p.grupo))).sort((a,b)=>groupOrderIndex(a)-groupOrderIndex(b));
+    sel.innerHTML = '<option value="">Todos os grupos</option>' + groups.map(g=>`<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join('');
+    sel.value = currentVal;
+
+    const datalist = document.getElementById("gruposList");
+    datalist.innerHTML = groups.map(g=>`<option value="${escapeHtml(g)}">`).join('');
+  }
+
+  function renderBimesterProgress(){
+    const total = data.length || 1;
+    const el = document.getElementById("bimesterProgress");
+    el.innerHTML = BIMESTERS.map(b=>{
+      const count = data.filter(p=>p.meses[b.key]).length;
+      const pct = Math.round((count/total)*100);
+      return `<div class="bim-item">
+        <div class="bim-label">${b.label}</div>
+        <div class="bim-bar-track"><div class="bim-bar-fill" style="width:${pct}%"></div></div>
+        <div class="bim-count">${count}/${total}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function escapeHtml(s){
+    return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function currentFilters(){
+    return {
+      q: document.getElementById("search").value.trim().toLowerCase(),
+      grupo: document.getElementById("filterGrupo").value,
+      tipo: document.getElementById("filterTipo").value
+    };
+  }
+
+  function matchesFilter(p, f){
+    if(f.grupo && p.grupo !== f.grupo) return false;
+    if(f.tipo){
+      if(f.tipo === 'cancelado' && !p.cancelado) return false;
+      if(['sentinelaG','sentinela','apostila'].includes(f.tipo) && !p[f.tipo]) return false;
+    }
+    if(f.q){
+      const hay = (p.nome + ' ' + p.grupo).toLowerCase();
+      if(!hay.includes(f.q)) return false;
+    }
+    return true;
+  }
+
+  function renderGroups(){
+    const f = currentFilters();
+    const filtered = data.filter(p => matchesFilter(p, f));
+
+    const groups = {};
+    filtered.forEach(p=>{
+      (groups[p.grupo] = groups[p.grupo] || []).push(p);
+    });
+    const groupNames = Object.keys(groups).sort((a,b)=>groupOrderIndex(a)-groupOrderIndex(b));
+
+    const container = document.getElementById("groupsContainer");
+    if(!groupNames.length){
+      container.innerHTML = `<div class="group"><div class="empty-msg">Nenhum publicador encontrado com esse filtro.</div></div>`;
+      return;
+    }
+
+    container.innerHTML = groupNames.map(gname=>{
+      const rows = groups[gname];
+      const collapsed = collapsedGroups.has(gname) ? 'collapsed' : '';
+      return `
+      <section class="group ${collapsed}" data-group="${escapeHtml(gname)}">
+        <div class="group-head" data-toggle-group="${escapeHtml(gname)}">
+          <span class="chev">▾</span>
+          <h2>${escapeHtml(gname)}</h2>
+          <span class="count-pill">${rows.length} publicador${rows.length===1?'':'es'}</span>
+        </div>
+        <div class="group-body">
+          <table class="roster">
+            <thead>
+              <tr class="group-header">
+                <th></th>
+                <th class="tipo-group" colspan="3">Tipo de publicação</th>
+                <th class="mes-group col-divider" colspan="${BIMESTERS.length}">Bimestre (entrega)</th>
+                <th></th>
+                <th></th>
+              </tr>
+              <tr>
+                <th class="name-col">Publicador</th>
+                <th>Sentinela<br>Letra G.</th>
+                <th>Sentinela</th>
+                <th>Apostila</th>
+                ${BIMESTERS.map((b,i)=>`<th${i===0?' class="col-divider"':''}>${b.label}</th>`).join('')}
+                <th>Cancelado</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.map(p=>rowHtml(p)).join('')}
+            </tbody>
+          </table>
+        </div>
+      </section>`;
+    }).join('');
+
+    attachRowEvents();
+    attachGroupToggleEvents();
+  }
+
+  function rowHtml(p){
+    return `
+      <tr data-id="${p.id}">
+        <td class="name-cell"><span class="nm" contenteditable="true" data-field="nome">${escapeHtml(p.nome)}</span></td>
+        <td>${stamp('sentinelaG', p.sentinelaG, 'tipo', 'Recebe Sentinela (letra G.)')}</td>
+        <td>${stamp('sentinela', p.sentinela, 'tipo', 'Recebe Sentinela')}</td>
+        <td>${stamp('apostila', p.apostila, 'tipo', 'Recebe Apostila')}</td>
+        ${BIMESTERS.map((b,i) => `<td${i===0?' class="col-divider"':''}>${stamp('mes:'+b.key, p.meses[b.key], '', 'Entregue em '+b.label)}</td>`).join('')}
+        <td>${stamp('cancelado', p.cancelado, 'cancel', 'Marcar como cancelado')}</td>
+        <td class="actions-cell"><button class="del-btn" data-del="${p.id}" title="Remover publicador">✕</button></td>
+      </tr>`;
+  }
+
+  function findRecord(id){ return data.find(p=>p.id===id); }
+
+  function attachRowEvents(){
+    document.querySelectorAll('.stamp').forEach(el=>{
+      const toggle = ()=>{
+        const tr = el.closest('tr');
+        const id = tr.getAttribute('data-id');
+        const rec = findRecord(id);
+        if(!rec) return;
+        const kind = el.getAttribute('data-kind');
+        if(kind.startsWith('mes:')){
+          const mkey = kind.split(':')[1];
+          rec.meses[mkey] = !rec.meses[mkey];
+        } else {
+          rec[kind] = !rec[kind];
+        }
+        save();
+        render();
+      };
+      el.addEventListener('click', toggle);
+      el.addEventListener('keydown', (e)=>{
+        if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); toggle(); }
+      });
+    });
+
+    document.querySelectorAll('.del-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const id = btn.getAttribute('data-del');
+        const rec = findRecord(id);
+        if(!rec) return;
+        if(confirm(`Remover "${rec.nome}" da lista?`)){
+          data = data.filter(p=>p.id!==id);
+          save();
+          render();
+        }
+      });
+    });
+
+    document.querySelectorAll('.nm[contenteditable="true"]').forEach(span=>{
+      span.addEventListener('blur', ()=>{
+        const tr = span.closest('tr');
+        const id = tr.getAttribute('data-id');
+        const rec = findRecord(id);
+        if(!rec) return;
+        const val = span.textContent.trim();
+        rec.nome = val || rec.nome;
+        span.textContent = rec.nome;
+        save();
+      });
+      span.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter'){ e.preventDefault(); span.blur(); }
+      });
+    });
+  }
+
+  function attachGroupToggleEvents(){
+    document.querySelectorAll('[data-toggle-group]').forEach(head=>{
+      head.addEventListener('click', ()=>{
+        const g = head.getAttribute('data-toggle-group');
+        if(collapsedGroups.has(g)) collapsedGroups.delete(g);
+        else collapsedGroups.add(g);
+        renderGroups();
+      });
+    });
+  }
+
+  // ---------- Toolbar / form wiring ----------
+  document.getElementById("search").addEventListener('input', renderGroups);
+  document.getElementById("filterGrupo").addEventListener('change', renderGroups);
+  document.getElementById("filterTipo").addEventListener('change', renderGroups);
+
+  document.getElementById("btnExpandAll").addEventListener('click', ()=>{
+    collapsedGroups.clear(); renderGroups();
+  });
+  document.getElementById("btnCollapseAll").addEventListener('click', ()=>{
+    Array.from(new Set(data.map(p=>p.grupo))).forEach(g=>collapsedGroups.add(g));
+    renderGroups();
+  });
+
+  document.getElementById("btnAddToggle").addEventListener('click', ()=>{
+    document.getElementById("addForm").classList.toggle('open');
+  });
+
+  document.getElementById("btnSave").addEventListener('click', ()=>{
+    const grupo = document.getElementById("inGrupo").value.trim() || "Sem grupo";
+    const nome = document.getElementById("inNome").value.trim();
+    if(!nome){ alert("Informe o nome do publicador."); return; }
+    const rec = {
+      id: cryptoId(),
+      grupo,
+      nome,
+      sentinelaG: document.getElementById("inSentinelaG").checked,
+      sentinela: document.getElementById("inSentinela").checked,
+      apostila: document.getElementById("inApostila").checked,
+      cancelado: false,
+      meses: emptyMeses()
+    };
+    data.push(rec);
+    save();
+    document.getElementById("inGrupo").value = "";
+    document.getElementById("inNome").value = "";
+    document.getElementById("inSentinelaG").checked = false;
+    document.getElementById("inSentinela").checked = false;
+    document.getElementById("inApostila").checked = false;
+    document.getElementById("addForm").classList.remove('open');
+    render();
+  });
+
+  document.getElementById("btnReset").addEventListener('click', ()=>{
+    if(confirm("Isso substitui os dados atuais pela lista original da planilha. Deseja continuar?")){
+      data = defaultData();
+      collapsedGroups.clear();
+      save();
+      render();
+    }
+  });
+
+  document.getElementById("btnPrint").addEventListener('click', ()=> window.print());
+
+  document.getElementById("btnExport").addEventListener('click', ()=>{
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0,10);
+    a.href = url; a.download = `itinerario-publicacoes-${stamp}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById("btnImport").addEventListener('click', ()=>{
+    document.getElementById("fileImport").click();
+  });
+  document.getElementById("fileImport").addEventListener('change', (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev)=>{
+      try{
+        const parsed = JSON.parse(ev.target.result);
+        if(!Array.isArray(parsed)) throw new Error("Formato inválido");
+        data = parsed.map(p => ({...p, id: p.id || cryptoId(), meses: {...emptyMeses(), ...(p.meses||{})}}));
+        collapsedGroups.clear();
+        save();
+        render();
+        alert("Dados importados com sucesso.");
+      }catch(err){
+        alert("Não foi possível importar este arquivo: " + err.message);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+
+  // ---------- Autenticação (login/senha) ----------
+  const loginOverlay = document.getElementById('loginOverlay');
+  const appRoot = document.getElementById('appRoot');
+  const loginForm = document.getElementById('loginForm');
+  const loginError = document.getElementById('loginError');
+  const loginInfo = document.getElementById('loginInfo');
+  const btnLogin = document.getElementById('btnLogin');
+  const btnLogout = document.getElementById('btnLogout');
+  const loginSenhaInput = document.getElementById('loginSenha');
+  const btnTogglePw = document.getElementById('btnTogglePw');
+  const linkForgotPw = document.getElementById('linkForgotPw');
+
+  // Mostrar/ocultar senha
+  if(btnTogglePw){
+    btnTogglePw.addEventListener('click', ()=>{
+      const showing = loginSenhaInput.type === 'text';
+      loginSenhaInput.type = showing ? 'password' : 'text';
+      btnTogglePw.querySelector('.eye-open').style.display = showing ? '' : 'none';
+      btnTogglePw.querySelector('.eye-closed').style.display = showing ? 'none' : '';
+      btnTogglePw.title = showing ? 'Mostrar senha' : 'Ocultar senha';
+      btnTogglePw.setAttribute('aria-label', btnTogglePw.title);
+    });
+  }
+
+  function startApp(){
+    load();  // carrega do localStorage (ou padrão) primeiro, pra tela não ficar em branco
+    setupCloudSync(render); // se o Firebase estiver configurado, sincroniza e então renderiza
+  }
+
+  if(!FIREBASE_ENABLED){
+    // sem Firebase configurado: não há login, o app abre direto em modo local
+    loginOverlay.style.display = 'none';
+    appRoot.style.display = 'block';
+    btnLogout.style.display = 'none';
+    startApp();
+  } else {
+    let appStarted = false;
+    auth.onAuthStateChanged(user=>{
+      if(user){
+        loginOverlay.style.display = 'none';
+        appRoot.style.display = 'block';
+        btnLogout.style.display = 'inline-block';
+        if(!appStarted){ appStarted = true; startApp(); }
+      } else {
+        loginOverlay.style.display = 'flex';
+        appRoot.style.display = 'none';
+      }
+    });
+
+    // Esqueci minha senha
+    if(linkForgotPw){
+      linkForgotPw.addEventListener('click', (e)=>{
+        e.preventDefault();
+        loginError.textContent = '';
+        loginInfo.textContent = '';
+        const email = document.getElementById('loginEmail').value.trim();
+        if(!email){
+          loginError.textContent = 'Digite seu e-mail no campo acima primeiro, depois clique aqui de novo.';
+          return;
+        }
+        linkForgotPw.textContent = 'Enviando…';
+        auth.sendPasswordResetEmail(email)
+          .then(()=>{
+            loginInfo.textContent = 'Enviamos um e-mail para ' + email + ' com um link para criar uma nova senha.';
+          })
+          .catch(err=>{
+            const msgs = {
+              'auth/invalid-email': 'E-mail inválido.',
+              'auth/user-not-found': 'Não existe um usuário cadastrado com esse e-mail.'
+            };
+            loginError.textContent = msgs[err.code] || 'Não foi possível enviar o e-mail. Tente novamente.';
+          })
+          .finally(()=>{ linkForgotPw.textContent = 'Esqueci minha senha'; });
+      });
+    }
+
+    loginForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      loginError.textContent = '';
+      loginInfo.textContent = '';
+      btnLogin.disabled = true;
+      btnLogin.textContent = 'Entrando…';
+      const email = document.getElementById('loginEmail').value.trim();
+      const senha = document.getElementById('loginSenha').value;
+      auth.signInWithEmailAndPassword(email, senha)
+        .catch(err=>{
+          const msgs = {
+            'auth/invalid-email': 'E-mail inválido.',
+            'auth/user-not-found': 'Usuário não encontrado.',
+            'auth/wrong-password': 'Senha incorreta.',
+            'auth/invalid-credential': 'E-mail ou senha incorretos.',
+            'auth/too-many-requests': 'Muitas tentativas. Aguarde um pouco e tente de novo.'
+          };
+          loginError.textContent = msgs[err.code] || 'Não foi possível entrar. Tente novamente.';
+        })
+        .finally(()=>{
+          btnLogin.disabled = false;
+          btnLogin.textContent = 'Entrar';
+        });
+    });
+
+    btnLogout.addEventListener('click', ()=>{
+      auth.signOut();
+    });
+  }
+})();
+</script>
+</body>
+</html>
