@@ -202,6 +202,14 @@
   .group.collapsed .group-body{display:none;}
 
   table.roster{ width:100%; border-collapse:collapse; }
+  table.roster thead tr.group-header th{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--ink-soft); text-align:center; font-weight:700;
+    padding:7px 6px 5px; background:#f2f3ec; border-bottom:1px solid var(--line);
+  }
+  table.roster thead tr.group-header th.tipo-group{ color:var(--brass-dark); }
+  table.roster thead tr.group-header th.mes-group{ color:var(--teal-dark); }
   table.roster thead th{
     font-family:'IBM Plex Mono', monospace;
     font-size:10.5px; text-transform:uppercase; letter-spacing:.06em;
@@ -210,6 +218,7 @@
     background:#fafaf7;
   }
   table.roster thead th.name-col{text-align:left; padding-left:18px;}
+  table.roster th.col-divider, table.roster td.col-divider{ border-left:2px solid var(--line); }
   table.roster tbody td{
     padding:10px 6px; text-align:center; border-bottom:1px solid #eceee8; vertical-align:middle;
   }
@@ -225,24 +234,24 @@
 
   /* Stamp checkbox */
   .stamp{
-    position:relative; width:34px; height:34px; margin:0 auto;
-    border-radius:50%;
+    position:relative; width:26px; height:26px; margin:0 auto;
+    border-radius:7px;
     border:2px solid #cfd3c8;
     background:#fff;
     cursor:pointer;
     display:flex; align-items:center; justify-content:center;
-    transition:border-color .15s ease, transform .1s ease;
+    transition:border-color .15s ease, background .15s ease, transform .1s ease;
   }
   .stamp:hover{border-color:var(--teal);}
-  .stamp:active{transform:scale(.94);}
-  .stamp svg{opacity:0; transform:scale(.5) rotate(-15deg); transition:opacity .12s ease, transform .18s cubic-bezier(.34,1.56,.64,1);}
-  .stamp.on{ border-color:var(--teal); background:#eaf5f3; }
-  .stamp.on svg{opacity:1; transform:scale(1) rotate(-8deg);}
-  .stamp.on svg path, .stamp.on svg circle{stroke:var(--teal);}
-  .stamp.cancel.on{ border-color:var(--rust); background:#fbecea; }
-  .stamp.cancel.on svg path, .stamp.cancel.on svg circle{stroke:var(--rust);}
-  .stamp.tipo.on{ border-color:var(--brass); background:#faf3e3; }
-  .stamp.tipo.on svg path, .stamp.tipo.on svg circle{stroke:var(--brass-dark);}
+  .stamp:active{transform:scale(.92);}
+  .stamp svg{opacity:0; transform:scale(.6); transition:opacity .12s ease, transform .16s cubic-bezier(.34,1.56,.64,1);}
+  .stamp.on{ border-color:var(--teal); background:var(--teal); }
+  .stamp.on svg{opacity:1; transform:scale(1);}
+  .stamp.on svg path{stroke:#fff;}
+  .stamp.cancel.on{ border-color:var(--rust); background:var(--rust); }
+  .stamp.cancel.on svg path{stroke:#fff;}
+  .stamp.tipo.on{ border-color:var(--brass-dark); background:var(--brass); }
+  .stamp.tipo.on svg path{stroke:#3a2c0c;}
 
   td.actions-cell{ width:34px; }
   .del-btn{
@@ -301,6 +310,23 @@
   }
   .login-sub{ margin:0 0 20px; color:var(--ink-soft); font-size:13.5px; }
   .login-card .field{ margin-bottom:14px; }
+  .password-field{ position:relative; }
+  .password-field input{ padding-right:42px; }
+  .toggle-pw{
+    position:absolute; right:4px; top:50%; transform:translateY(-50%);
+    width:32px; height:32px; border:none; background:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--ink-soft); border-radius:6px;
+  }
+  .toggle-pw:hover{ color:var(--teal); background:#f0f1ec; }
+  .forgot-pw-row{ text-align:right; margin:-8px 0 14px; }
+  .forgot-pw-row a{
+    font-size:12.5px; color:var(--teal-dark); text-decoration:none; cursor:pointer;
+  }
+  .forgot-pw-row a:hover{ text-decoration:underline; }
+  .login-info{
+    color:var(--teal-dark); font-size:13px; margin:-4px 0 14px; min-height:1em;
+  }
   .login-error{
     color:var(--rust); font-size:13px; margin:-4px 0 14px; min-height:1em;
   }
@@ -332,9 +358,19 @@
       </div>
       <div class="field">
         <label for="loginSenha">Senha</label>
-        <input type="password" id="loginSenha" autocomplete="current-password" required>
+        <div class="password-field">
+          <input type="password" id="loginSenha" autocomplete="current-password" required>
+          <button type="button" class="toggle-pw" id="btnTogglePw" title="Mostrar senha" aria-label="Mostrar senha">
+            <svg class="eye-open" width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/></svg>
+            <svg class="eye-closed" width="19" height="19" viewBox="0 0 24 24" fill="none" style="display:none;"><path d="M3 3l18 18M10.6 10.7a3 3 0 0 0 4.2 4.2M7.4 7.5C4.8 9 3 12 3 12s4 7 11 7c2 0 3.7-.5 5.1-1.3M14.6 6.1C13.8 6 13 6 12 6 5 6 1 12 1 12s0 0 1.6 2.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="forgot-pw-row">
+        <a href="#" id="linkForgotPw">Esqueci minha senha</a>
       </div>
       <p class="login-error" id="loginError"></p>
+      <p class="login-info" id="loginInfo"></p>
       <button type="submit" class="btn teal" id="btnLogin" style="width:100%;">Entrar</button>
     </form>
   </div>
@@ -640,7 +676,7 @@
   }
 
   function stamp(kind, on, extraClass, title){
-    return `<span class="stamp ${extraClass||''} ${on?'on':''}" data-kind="${kind}" title="${title||''}" role="checkbox" aria-checked="${on}" tabindex="0">${on ? (kind==='cancel'? xSvg() : dotSvg()) : ''}</span>`;
+    return `<span class="stamp ${extraClass||''} ${on?'on':''}" data-kind="${kind}" title="${title||''}" role="checkbox" aria-checked="${on}" tabindex="0">${on ? (kind==='cancel'? xSvg() : checkSvg()) : ''}</span>`;
   }
 
   function render(){
@@ -745,12 +781,19 @@
         <div class="group-body">
           <table class="roster">
             <thead>
+              <tr class="group-header">
+                <th></th>
+                <th class="tipo-group" colspan="3">Tipo de publicação</th>
+                <th class="mes-group col-divider" colspan="${BIMESTERS.length}">Bimestre (entrega)</th>
+                <th></th>
+                <th></th>
+              </tr>
               <tr>
                 <th class="name-col">Publicador</th>
                 <th>Sentinela<br>Letra G.</th>
                 <th>Sentinela</th>
                 <th>Apostila</th>
-                ${BIMESTERS.map(b=>`<th>${b.label}</th>`).join('')}
+                ${BIMESTERS.map((b,i)=>`<th${i===0?' class="col-divider"':''}>${b.label}</th>`).join('')}
                 <th>Cancelado</th>
                 <th></th>
               </tr>
@@ -774,7 +817,7 @@
         <td>${stamp('sentinelaG', p.sentinelaG, 'tipo', 'Recebe Sentinela (letra G.)')}</td>
         <td>${stamp('sentinela', p.sentinela, 'tipo', 'Recebe Sentinela')}</td>
         <td>${stamp('apostila', p.apostila, 'tipo', 'Recebe Apostila')}</td>
-        ${BIMESTERS.map(b => `<td>${stamp('mes:'+b.key, p.meses[b.key], '', 'Entregue em '+b.label)}</td>`).join('')}
+        ${BIMESTERS.map((b,i) => `<td${i===0?' class="col-divider"':''}>${stamp('mes:'+b.key, p.meses[b.key], '', 'Entregue em '+b.label)}</td>`).join('')}
         <td>${stamp('cancelado', p.cancelado, 'cancel', 'Marcar como cancelado')}</td>
         <td class="actions-cell"><button class="del-btn" data-del="${p.id}" title="Remover publicador">✕</button></td>
       </tr>`;
@@ -938,8 +981,24 @@
   const appRoot = document.getElementById('appRoot');
   const loginForm = document.getElementById('loginForm');
   const loginError = document.getElementById('loginError');
+  const loginInfo = document.getElementById('loginInfo');
   const btnLogin = document.getElementById('btnLogin');
   const btnLogout = document.getElementById('btnLogout');
+  const loginSenhaInput = document.getElementById('loginSenha');
+  const btnTogglePw = document.getElementById('btnTogglePw');
+  const linkForgotPw = document.getElementById('linkForgotPw');
+
+  // Mostrar/ocultar senha
+  if(btnTogglePw){
+    btnTogglePw.addEventListener('click', ()=>{
+      const showing = loginSenhaInput.type === 'text';
+      loginSenhaInput.type = showing ? 'password' : 'text';
+      btnTogglePw.querySelector('.eye-open').style.display = showing ? '' : 'none';
+      btnTogglePw.querySelector('.eye-closed').style.display = showing ? 'none' : '';
+      btnTogglePw.title = showing ? 'Mostrar senha' : 'Ocultar senha';
+      btnTogglePw.setAttribute('aria-label', btnTogglePw.title);
+    });
+  }
 
   function startApp(){
     load();  // carrega do localStorage (ou padrão) primeiro, pra tela não ficar em branco
@@ -966,9 +1025,37 @@
       }
     });
 
+    // Esqueci minha senha
+    if(linkForgotPw){
+      linkForgotPw.addEventListener('click', (e)=>{
+        e.preventDefault();
+        loginError.textContent = '';
+        loginInfo.textContent = '';
+        const email = document.getElementById('loginEmail').value.trim();
+        if(!email){
+          loginError.textContent = 'Digite seu e-mail no campo acima primeiro, depois clique aqui de novo.';
+          return;
+        }
+        linkForgotPw.textContent = 'Enviando…';
+        auth.sendPasswordResetEmail(email)
+          .then(()=>{
+            loginInfo.textContent = 'Enviamos um e-mail para ' + email + ' com um link para criar uma nova senha.';
+          })
+          .catch(err=>{
+            const msgs = {
+              'auth/invalid-email': 'E-mail inválido.',
+              'auth/user-not-found': 'Não existe um usuário cadastrado com esse e-mail.'
+            };
+            loginError.textContent = msgs[err.code] || 'Não foi possível enviar o e-mail. Tente novamente.';
+          })
+          .finally(()=>{ linkForgotPw.textContent = 'Esqueci minha senha'; });
+      });
+    }
+
     loginForm.addEventListener('submit', (e)=>{
       e.preventDefault();
       loginError.textContent = '';
+      loginInfo.textContent = '';
       btnLogin.disabled = true;
       btnLogin.textContent = 'Entrando…';
       const email = document.getElementById('loginEmail').value.trim();
