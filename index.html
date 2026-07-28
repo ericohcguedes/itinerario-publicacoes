@@ -44,7 +44,7 @@
     margin-bottom:26px;
   }
   .hero-top{display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:16px;}
-  .hero-menu-row{ margin-bottom:14px; }
+  .hero-menu-row{ margin: 0 0 14px -20px; }
   .menu-wrap{ position:relative; display:inline-block; }
   .menu-toggle{ display:flex; align-items:center; gap:7px; }
   .menu-dropdown{
@@ -146,6 +146,16 @@
   .stat.accent .num{color:var(--brass);}
   .stat.accent2 .num{color:#7fd4c9;}
   .stat.warn .num{color:#e59a94;}
+
+  .stats.stats-light{ margin:0 0 20px; }
+  .stats-light .stat{
+    background:var(--paper-card); border:1px solid var(--line); box-shadow:var(--shadow);
+  }
+  .stats-light .stat .num{ color:var(--ink); }
+  .stats-light .stat .lbl{ color:var(--ink-soft); }
+  .stats-light .stat.accent .num{ color:var(--brass-dark); }
+  .stats-light .stat.accent2 .num{ color:var(--teal-dark); }
+  .stats-light .stat.warn .num{ color:var(--rust); }
 
   /* ---------- Toolbar ---------- */
   .toolbar{
@@ -448,15 +458,15 @@
           Menu
         </button>
         <div class="menu-dropdown" id="menuDropdown">
-          <button class="menu-item" id="btnManageUsers" style="display:none;">Gerenciar acesso</button>
-          <button class="menu-item" id="btnLogout" style="display:none;">Sair</button>
-          <div class="menu-divider"></div>
-          <button class="menu-item" id="btnAddToggle">+ Adicionar publicador</button>
-          <div class="menu-divider"></div>
           <button class="menu-item" id="btnPrint">Imprimir</button>
-          <button class="menu-item" id="btnExport">Exportar dados</button>
           <button class="menu-item" id="btnImport">Importar dados</button>
+          <button class="menu-item" id="btnExport">Exportar dados</button>
+          <button class="menu-item" id="btnAddToggle">+ Adicionar publicador</button>
           <input type="file" id="fileImport" accept="application/json" class="sr-only">
+          <div class="menu-divider"></div>
+          <button class="menu-item" id="btnManageUsers" style="display:none;">Gerenciar acesso</button>
+          <div class="menu-divider"></div>
+          <button class="menu-item" id="btnLogout" style="display:none;">Sair</button>
         </div>
       </div>
     </div>
@@ -560,6 +570,8 @@
 
   <div id="tabPedidosPanel" style="display:none;">
 
+    <div class="stats stats-light" id="pedidosStats"></div>
+
     <div class="toolbar">
       <input type="text" id="searchPedidos" placeholder="Buscar por nome do publicador…">
       <div class="divider"></div>
@@ -575,7 +587,7 @@
             <tr>
               <th class="name-col">Publicador</th>
               <th class="col-divider">Tipo de publicação</th>
-              <th>Data solicitação</th>
+              <th class="col-divider">Data solicitação</th>
               <th>Data entrega</th>
               <th></th>
             </tr>
@@ -1072,15 +1084,31 @@
       <tr data-id="${p.id}">
         <td class="name-cell"><span class="nm" contenteditable="true" data-field="nome">${escapeHtml(p.nome)}</span></td>
         <td class="col-divider"><select class="pedido-select" data-field="tipo">${options}</select></td>
-        <td><input type="date" class="pedido-date" data-field="dataSolicitacao" value="${p.dataSolicitacao||''}"></td>
+        <td class="col-divider"><input type="date" class="pedido-date" data-field="dataSolicitacao" value="${p.dataSolicitacao||''}"></td>
         <td><input type="date" class="pedido-date" data-field="dataEntrega" value="${p.dataEntrega||''}"></td>
         <td class="actions-cell"><button class="del-btn" data-del-pedido="${p.id}" title="Remover pedido">✕</button></td>
       </tr>`;
   }
 
+  function renderPedidosStats(){
+    const el = document.getElementById('pedidosStats');
+    if(!el) return;
+    const total = pedidosData.length;
+    const porTipo = PEDIDO_TIPOS.map(t => pedidosData.filter(p=>p.tipo===t).length);
+    const aguardando = pedidosData.filter(p => !p.dataEntrega).length;
+    el.innerHTML = `
+      <div class="stat"><div class="num">${total}</div><div class="lbl">PEDIDOS</div></div>
+      <div class="stat accent"><div class="num">${porTipo[0]}</div><div class="lbl">ÍNDICE DA TORRE DE VIGIA</div></div>
+      <div class="stat accent2"><div class="num">${porTipo[1]}</div><div class="lbl">EXAMINE 2027</div></div>
+      <div class="stat accent2"><div class="num">${porTipo[2]}</div><div class="lbl">EXAMINE LETRAS GRANDES</div></div>
+      <div class="stat warn"><div class="num">${aguardando}</div><div class="lbl">AGUARDANDO ENTREGA</div></div>
+    `;
+  }
+
   function renderPedidosView(){
     const container = document.getElementById('pedidosContainer');
     if(!container) return;
+    renderPedidosStats();
     const q = (document.getElementById('searchPedidos')?.value || '').trim().toLowerCase();
     const filtered = q ? pedidosData.filter(p => p.nome.toLowerCase().includes(q)) : pedidosData;
 
