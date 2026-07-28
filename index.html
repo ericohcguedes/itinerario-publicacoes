@@ -63,6 +63,24 @@
   }
   .menu-item:hover{ background:var(--paper); }
   .menu-divider{ height:1px; background:var(--line); margin:5px 4px; }
+
+  /* ---------- Tabs ---------- */
+  .tabs-bar{ display:flex; gap:4px; margin-bottom:18px; border-bottom:1px solid var(--line); }
+  .tab-btn{
+    font-family:'IBM Plex Sans', sans-serif; font-size:14px; font-weight:600;
+    color:var(--ink-soft); background:none; border:none; cursor:pointer;
+    padding:10px 6px; margin-bottom:-1px; border-bottom:2px solid transparent;
+  }
+  .tab-btn:hover{ color:var(--ink); }
+  .tab-btn.active{ color:var(--teal-dark); border-bottom-color:var(--teal); }
+  select.pedido-select{
+    width:100%; font-size:13.5px; padding:7px 8px; border:1px solid var(--line);
+    border-radius:7px; background:#fbfbf8; font-family:'IBM Plex Sans',sans-serif; color:var(--ink);
+  }
+  input.pedido-date{
+    width:100%; font-size:13.5px; padding:7px 8px; border:1px solid var(--line);
+    border-radius:7px; background:#fbfbf8; font-family:'IBM Plex Sans',sans-serif; color:var(--ink);
+  }
   .hero-title-block .eyebrow{
     font-family:'IBM Plex Mono', monospace;
     font-size:12px; letter-spacing:.14em; text-transform:uppercase;
@@ -480,6 +498,13 @@
 
 <div class="wrap">
 
+  <div class="tabs-bar">
+    <button class="tab-btn active" data-tab="publicacoes">Publicações</button>
+    <button class="tab-btn" data-tab="pedidos">Pedidos Especiais</button>
+  </div>
+
+  <div id="tabPublicacoesPanel">
+
   <div class="add-form" id="addForm">
     <h3>Novo publicador</h3>
     <div class="add-grid">
@@ -531,7 +556,39 @@
 
   <div id="groupsContainer"></div>
 
+  </div>
+
+  <div id="tabPedidosPanel" style="display:none;">
+
+    <div class="toolbar">
+      <input type="text" id="searchPedidos" placeholder="Buscar por nome do publicador…">
+      <div class="divider"></div>
+      <div class="toolbar-right">
+        <button class="btn brass" id="btnAddPedido">+ Adicionar pedido</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-body">
+        <table class="roster" id="pedidosTable">
+          <thead>
+            <tr>
+              <th class="name-col">Publicador</th>
+              <th class="col-divider">Tipo de publicação</th>
+              <th>Data solicitação</th>
+              <th>Data entrega</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="pedidosContainer"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
 </div>
+
 
 <footer>
   Dados salvos automaticamente neste navegador (localStorage). Use <strong>Exportar dados</strong> regularmente para ter um backup e para compartilhar com outra pessoa/dispositivo.
@@ -620,6 +677,12 @@
     {key:"novdez", label:"Nov–Dez"}
   ];
   const GROUP_ORDER = ["Antioquia","Canaã","Éden","Damasco","Eufrates","Macedônia","Orebe","Sinai"];
+  const STORAGE_KEY_PEDIDOS = "itinerarioPedidosEspeciais_v1";
+  const PEDIDO_TIPOS = [
+    "Índice das Publicações da Torre de Vigia",
+    "Examine as Escrituras Diariamente — 2027",
+    "Examine as Escrituras Diariamente — 2027 - Letras Grandes"
+  ];
 
   function emptyMeses(){
     const m = {};
@@ -663,6 +726,18 @@
     return 'p_' + Math.random().toString(36).slice(2,10) + Date.now().toString(36);
   }
 
+  function defaultPedidosData(){
+    return ["Dejair Pereira","Vera Oliveira","Joel Vicente"].map(nome => ({
+      id: cryptoId(),
+      nome,
+      tipo: '',
+      dataSolicitacao: '',
+      dataEntrega: ''
+    }));
+  }
+
+  let pedidosData = [];
+
   let data = [];
   let collapsedGroups = new Set();
 
@@ -673,22 +748,37 @@
         const parsed = JSON.parse(raw);
         if(Array.isArray(parsed) && parsed.length){
           data = parsed.map(p => ({...p, meses: {...emptyMeses(), ...(p.meses||{})}}));
-          return;
         }
       }
     }catch(e){ console.warn("Falha ao ler dados salvos, usando padrão.", e); }
-    data = defaultData();
-    if(!FIREBASE_ENABLED) save(); // sem nuvem configurada, já grava local. Com nuvem, quem decide é setupCloudSync()
+    if(!data.length){
+      data = defaultData();
+      if(!FIREBASE_ENABLED) save();
+    }
+
+    try{
+      const rawP = localStorage.getItem(STORAGE_KEY_PEDIDOS);
+      if(rawP){
+        const parsedP = JSON.parse(rawP);
+        if(Array.isArray(parsedP)) pedidosData = parsedP;
+      }
+    }catch(e){ console.warn("Falha ao ler pedidos especiais salvos, usando padrão.", e); }
+    if(!pedidosData.length){
+      pedidosData = defaultPedidosData();
+      if(!FIREBASE_ENABLED) save();
+    }
   }
 
   function save(){
     try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
     catch(e){ console.warn("Não foi possível salvar (localStorage indisponível).", e); }
+    try{ localStorage.setItem(STORAGE_KEY_PEDIDOS, JSON.stringify(pedidosData)); }
+    catch(e){ console.warn("Não foi possível salvar pedidos especiais (localStorage indisponível).", e); }
 
     if(FIREBASE_ENABLED && docRef){
       suppressNextWrite = true; // esse write vai gerar um eco no onSnapshot; ignoramos esse eco
       setSyncStatus('syncing');
-      docRef.set({ publicadores: data, atualizadoEm: firebase.firestore.FieldValue.serverTimestamp() })
+      docRef.set({ publicadores: data, pedidosEspeciais: pedidosData, atualizadoEm: firebase.firestore.FieldValue.serverTimestamp() })
         .then(()=> setSyncStatus('ok'))
         .catch(err=>{
           console.warn("Falha ao sincronizar com o Firestore.", err);
@@ -724,9 +814,12 @@
         const remote = snap.data().publicadores || [];
         data = remote.map(p => ({...p, meses: {...emptyMeses(), ...(p.meses||{})}}));
         try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }catch(e){}
+        const remoteP = snap.data().pedidosEspeciais || [];
+        pedidosData = remoteP;
+        try{ localStorage.setItem(STORAGE_KEY_PEDIDOS, JSON.stringify(pedidosData)); }catch(e){}
       } else if(!receivedFirst){
         // banco vazio: envia os dados locais/padrão como base inicial
-        docRef.set({ publicadores: data, atualizadoEm: firebase.firestore.FieldValue.serverTimestamp() }).catch(()=>{});
+        docRef.set({ publicadores: data, pedidosEspeciais: pedidosData, atualizadoEm: firebase.firestore.FieldValue.serverTimestamp() }).catch(()=>{});
       }
       setSyncStatus('ok');
       if(!receivedFirst){ receivedFirst = true; onFirstData(); }
@@ -762,6 +855,7 @@
     renderFilters();
     renderBimesterProgress();
     renderGroups();
+    renderPedidosView();
   }
 
   function renderStats(){
@@ -966,6 +1060,107 @@
       });
     });
   }
+
+  // ---------- Pedidos Especiais ----------
+  function findPedido(id){ return pedidosData.find(p=>p.id===id); }
+
+  function pedidoRowHtml(p){
+    const options = ['<option value="">— selecione —</option>']
+      .concat(PEDIDO_TIPOS.map(t => `<option value="${escapeHtml(t)}" ${p.tipo===t?'selected':''}>${escapeHtml(t)}</option>`))
+      .join('');
+    return `
+      <tr data-id="${p.id}">
+        <td class="name-cell"><span class="nm" contenteditable="true" data-field="nome">${escapeHtml(p.nome)}</span></td>
+        <td class="col-divider"><select class="pedido-select" data-field="tipo">${options}</select></td>
+        <td><input type="date" class="pedido-date" data-field="dataSolicitacao" value="${p.dataSolicitacao||''}"></td>
+        <td><input type="date" class="pedido-date" data-field="dataEntrega" value="${p.dataEntrega||''}"></td>
+        <td class="actions-cell"><button class="del-btn" data-del-pedido="${p.id}" title="Remover pedido">✕</button></td>
+      </tr>`;
+  }
+
+  function renderPedidosView(){
+    const container = document.getElementById('pedidosContainer');
+    if(!container) return;
+    const q = (document.getElementById('searchPedidos')?.value || '').trim().toLowerCase();
+    const filtered = q ? pedidosData.filter(p => p.nome.toLowerCase().includes(q)) : pedidosData;
+
+    if(!filtered.length){
+      container.innerHTML = `<tr><td colspan="5" class="empty-msg">Nenhum pedido cadastrado ainda.</td></tr>`;
+      return;
+    }
+    container.innerHTML = filtered.map(pedidoRowHtml).join('');
+    attachPedidoRowEvents();
+  }
+
+  function attachPedidoRowEvents(){
+    const container = document.getElementById('pedidosContainer');
+    if(!container) return;
+
+    container.querySelectorAll('.pedido-select, .pedido-date').forEach(el=>{
+      el.addEventListener('change', ()=>{
+        const tr = el.closest('tr');
+        const id = tr.getAttribute('data-id');
+        const rec = findPedido(id);
+        if(!rec) return;
+        rec[el.getAttribute('data-field')] = el.value;
+        save();
+      });
+    });
+
+    container.querySelectorAll('.nm[contenteditable="true"]').forEach(span=>{
+      span.addEventListener('blur', ()=>{
+        const tr = span.closest('tr');
+        const id = tr.getAttribute('data-id');
+        const rec = findPedido(id);
+        if(!rec) return;
+        const val = span.textContent.trim();
+        rec.nome = val || rec.nome;
+        span.textContent = rec.nome;
+        save();
+      });
+      span.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter'){ e.preventDefault(); span.blur(); }
+      });
+    });
+
+    container.querySelectorAll('[data-del-pedido]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const id = btn.getAttribute('data-del-pedido');
+        const rec = findPedido(id);
+        if(!rec) return;
+        if(confirm(`Remover o pedido de "${rec.nome}"?`)){
+          pedidosData = pedidosData.filter(p=>p.id!==id);
+          save();
+          renderPedidosView();
+        }
+      });
+    });
+  }
+
+  const btnAddPedido = document.getElementById('btnAddPedido');
+  if(btnAddPedido){
+    btnAddPedido.addEventListener('click', ()=>{
+      pedidosData.push({ id: cryptoId(), nome: 'Novo publicador', tipo: '', dataSolicitacao: '', dataEntrega: '' });
+      save();
+      renderPedidosView();
+    });
+  }
+  const searchPedidosInput = document.getElementById('searchPedidos');
+  if(searchPedidosInput){
+    searchPedidosInput.addEventListener('input', renderPedidosView);
+  }
+
+  // ---------- Abas (Publicações / Pedidos Especiais) ----------
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.getAttribute('data-tab');
+      document.getElementById('tabPublicacoesPanel').style.display = tab === 'publicacoes' ? 'block' : 'none';
+      document.getElementById('tabPedidosPanel').style.display = tab === 'pedidos' ? 'block' : 'none';
+      if(tab === 'pedidos') renderPedidosView();
+    });
+  });
 
   // ---------- Toolbar / form wiring ----------
   document.getElementById("search").addEventListener('input', renderGroups);
