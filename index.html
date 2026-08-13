@@ -245,7 +245,7 @@
     font-size:11.5px; background:#e7e9e1; color:var(--ink-soft);
     padding:2px 9px; border-radius:100px; margin-left:2px;
   }
-  .group-body{ }
+  .group-body{ overflow-x:auto; }
   .group.collapsed .group-body{display:none;}
 
   table.roster{ width:100%; border-collapse:collapse; }
@@ -544,6 +544,7 @@
   <div class="toolbar">
     <input type="text" id="search" placeholder="Buscar por nome ou grupo…">
     <select id="filterGrupo"><option value="">Todos os grupos</option></select>
+    <select id="filterPublicador"><option value="">Todos os publicadores</option></select>
     <select id="filterTipo">
       <option value="">Todas as publicações</option>
       <option value="sentinelaG">Sentinela (letra G.)</option>
@@ -560,7 +561,12 @@
   </div>
 
   <div class="progress-strip">
-    <h3>Entrega por bimestre</h3>
+    <h3>Sentinela — entrega mensal</h3>
+    <div class="bimester-row" id="monthlyProgress"></div>
+  </div>
+
+  <div class="progress-strip">
+    <h3>Apostila — entrega bimestral</h3>
     <div class="bimester-row" id="bimesterProgress"></div>
   </div>
 
@@ -688,6 +694,12 @@
     {key:"setout", label:"Set–Out"},
     {key:"novdez", label:"Nov–Dez"}
   ];
+  const MESES = [
+    {key:"jan", label:"Jan"}, {key:"fev", label:"Fev"}, {key:"mar", label:"Mar"},
+    {key:"abr", label:"Abr"}, {key:"mai", label:"Mai"}, {key:"jun", label:"Jun"},
+    {key:"jul", label:"Jul"}, {key:"ago", label:"Ago"}, {key:"set", label:"Set"},
+    {key:"out", label:"Out"}, {key:"nov", label:"Nov"}, {key:"dez", label:"Dez"}
+  ];
   const GROUP_ORDER = ["Antioquia","Canaã","Éden","Damasco","Eufrates","Macedônia","Orebe","Sinai"];
   const STORAGE_KEY_PEDIDOS = "itinerarioPedidosEspeciais_v1";
   const PEDIDO_TIPOS = [
@@ -699,6 +711,12 @@
   function emptyMeses(){
     const m = {};
     BIMESTERS.forEach(b => m[b.key] = false);
+    return m;
+  }
+
+  function emptyMesesMensal(){
+    const m = {};
+    MESES.forEach(b => m[b.key] = false);
     return m;
   }
 
@@ -730,7 +748,8 @@
       sentinela: r[3],
       apostila: r[4],
       cancelado: false,
-      meses: emptyMeses()
+      meses: emptyMeses(),
+      mesesMensal: emptyMesesMensal()
     }));
   }
 
@@ -759,7 +778,7 @@
       if(raw){
         const parsed = JSON.parse(raw);
         if(Array.isArray(parsed) && parsed.length){
-          data = parsed.map(p => ({...p, meses: {...emptyMeses(), ...(p.meses||{})}}));
+          data = parsed.map(p => ({...p, meses: {...emptyMeses(), ...(p.meses||{})}, mesesMensal: {...emptyMesesMensal(), ...(p.mesesMensal||{})}}));
         }
       }
     }catch(e){ console.warn("Falha ao ler dados salvos, usando padrão.", e); }
@@ -824,7 +843,7 @@
       if(suppressNextWrite){ suppressNextWrite = false; setSyncStatus('ok'); if(!receivedFirst){ receivedFirst = true; onFirstData(); } return; }
       if(snap.exists){
         const remote = snap.data().publicadores || [];
-        data = remote.map(p => ({...p, meses: {...emptyMeses(), ...(p.meses||{})}}));
+        data = remote.map(p => ({...p, meses: {...emptyMeses(), ...(p.meses||{})}, mesesMensal: {...emptyMesesMensal(), ...(p.mesesMensal||{})}}));
         try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }catch(e){}
         const remoteP = snap.data().pedidosEspeciais || [];
         pedidosData = remoteP;
@@ -866,6 +885,7 @@
     renderStats();
     renderFilters();
     renderBimesterProgress();
+    renderMonthlyProgress();
     renderGroups();
     renderPedidosView();
   }
@@ -895,18 +915,40 @@
 
     const datalist = document.getElementById("gruposList");
     datalist.innerHTML = groups.map(g=>`<option value="${escapeHtml(g)}">`).join('');
+
+    const selPub = document.getElementById("filterPublicador");
+    const currentPub = selPub.value;
+    const nomes = data.map(p=>p.nome).sort((a,b)=>a.localeCompare(b,'pt-BR'));
+    selPub.innerHTML = '<option value="">Todos os publicadores</option>' + nomes.map(n=>`<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+    selPub.value = currentPub;
   }
 
   function renderBimesterProgress(){
-    const total = data.length || 1;
+    const base = data.filter(p=>p.apostila);
+    const total = base.length || 1;
     const el = document.getElementById("bimesterProgress");
     el.innerHTML = BIMESTERS.map(b=>{
-      const count = data.filter(p=>p.meses[b.key]).length;
+      const count = base.filter(p=>p.meses[b.key]).length;
       const pct = Math.round((count/total)*100);
       return `<div class="bim-item">
         <div class="bim-label">${b.label}</div>
         <div class="bim-bar-track"><div class="bim-bar-fill" style="width:${pct}%"></div></div>
-        <div class="bim-count">${count}/${total}</div>
+        <div class="bim-count">${count}/${base.length}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderMonthlyProgress(){
+    const base = data.filter(p=>p.sentinela || p.sentinelaG);
+    const total = base.length || 1;
+    const el = document.getElementById("monthlyProgress");
+    el.innerHTML = MESES.map(m=>{
+      const count = base.filter(p=>p.mesesMensal[m.key]).length;
+      const pct = Math.round((count/total)*100);
+      return `<div class="bim-item">
+        <div class="bim-label">${m.label}</div>
+        <div class="bim-bar-track"><div class="bim-bar-fill" style="width:${pct}%"></div></div>
+        <div class="bim-count">${count}/${base.length}</div>
       </div>`;
     }).join('');
   }
@@ -919,12 +961,14 @@
     return {
       q: document.getElementById("search").value.trim().toLowerCase(),
       grupo: document.getElementById("filterGrupo").value,
+      publicador: document.getElementById("filterPublicador").value,
       tipo: document.getElementById("filterTipo").value
     };
   }
 
   function matchesFilter(p, f){
     if(f.grupo && p.grupo !== f.grupo) return false;
+    if(f.publicador && p.nome !== f.publicador) return false;
     if(f.tipo){
       if(f.tipo === 'cancelado' && !p.cancelado) return false;
       if(['sentinelaG','sentinela','apostila'].includes(f.tipo) && !p[f.tipo]) return false;
@@ -968,7 +1012,8 @@
               <tr class="group-header">
                 <th></th>
                 <th class="tipo-group col-divider" colspan="3">Tipo de publicação</th>
-                <th class="mes-group col-divider" colspan="${BIMESTERS.length}">Bimestre (entrega)</th>
+                <th class="mes-group col-divider" colspan="${MESES.length}">Sentinela — entrega mensal</th>
+                <th class="mes-group col-divider" colspan="${BIMESTERS.length}">Apostila — entrega bimestral</th>
                 <th></th>
                 <th></th>
               </tr>
@@ -977,6 +1022,7 @@
                 <th class="col-divider">Sentinela<br>Letra G.</th>
                 <th>Sentinela</th>
                 <th>Apostila</th>
+                ${MESES.map((m,i)=>`<th${i===0?' class="col-divider"':''}>${m.label}</th>`).join('')}
                 ${BIMESTERS.map((b,i)=>`<th${i===0?' class="col-divider"':''}>${b.label}</th>`).join('')}
                 <th>Cancelado</th>
                 <th></th>
@@ -1001,7 +1047,8 @@
         <td class="col-divider">${stamp('sentinelaG', p.sentinelaG, 'tipo', 'Recebe Sentinela (letra G.)')}</td>
         <td>${stamp('sentinela', p.sentinela, 'tipo', 'Recebe Sentinela')}</td>
         <td>${stamp('apostila', p.apostila, 'tipo', 'Recebe Apostila')}</td>
-        ${BIMESTERS.map((b,i) => `<td${i===0?' class="col-divider"':''}>${stamp('mes:'+b.key, p.meses[b.key], '', 'Entregue em '+b.label)}</td>`).join('')}
+        ${MESES.map((m,i) => `<td${i===0?' class="col-divider"':''}>${stamp('mesmensal:'+m.key, p.mesesMensal[m.key], '', 'Sentinela entregue em '+m.label)}</td>`).join('')}
+        ${BIMESTERS.map((b,i) => `<td${i===0?' class="col-divider"':''}>${stamp('mes:'+b.key, p.meses[b.key], '', 'Apostila entregue em '+b.label)}</td>`).join('')}
         <td>${stamp('cancelado', p.cancelado, 'cancel', 'Marcar como cancelado')}</td>
         <td class="actions-cell"><button class="del-btn" data-del="${p.id}" title="Remover publicador">✕</button></td>
       </tr>`;
@@ -1017,7 +1064,10 @@
         const rec = findRecord(id);
         if(!rec) return;
         const kind = el.getAttribute('data-kind');
-        if(kind.startsWith('mes:')){
+        if(kind.startsWith('mesmensal:')){
+          const mkey = kind.split(':')[1];
+          rec.mesesMensal[mkey] = !rec.mesesMensal[mkey];
+        } else if(kind.startsWith('mes:')){
           const mkey = kind.split(':')[1];
           rec.meses[mkey] = !rec.meses[mkey];
         } else {
@@ -1193,6 +1243,7 @@
   // ---------- Toolbar / form wiring ----------
   document.getElementById("search").addEventListener('input', renderGroups);
   document.getElementById("filterGrupo").addEventListener('change', renderGroups);
+  document.getElementById("filterPublicador").addEventListener('change', renderGroups);
   document.getElementById("filterTipo").addEventListener('change', renderGroups);
 
   // Menu compacto (canto superior esquerdo)
@@ -1249,7 +1300,8 @@
       sentinela: document.getElementById("inSentinela").checked,
       apostila: document.getElementById("inApostila").checked,
       cancelado: false,
-      meses: emptyMeses()
+      meses: emptyMeses(),
+      mesesMensal: emptyMesesMensal()
     };
     data.push(rec);
     save();
@@ -1294,7 +1346,7 @@
       try{
         const parsed = JSON.parse(ev.target.result);
         if(!Array.isArray(parsed)) throw new Error("Formato inválido");
-        data = parsed.map(p => ({...p, id: p.id || cryptoId(), meses: {...emptyMeses(), ...(p.meses||{})}}));
+        data = parsed.map(p => ({...p, id: p.id || cryptoId(), meses: {...emptyMeses(), ...(p.meses||{})}, mesesMensal: {...emptyMesesMensal(), ...(p.mesesMensal||{})}}));
         collapsedGroups.clear();
         save();
         render();
