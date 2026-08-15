@@ -6,6 +6,10 @@ Ao abrir um PR, inclua no título ou na descrição a referência da entrada cor
 
 ---
 
+## [Não versionado] — 2026-08-13 (tarde)
+### Alterado
+- Barras de progresso (Sentinela — entrega mensal / Apostila — entrega bimestral) trocadas de lista empilhada (uma barra por linha) para **grid compacto** de blocos lado a lado — reduz de ~18 linhas para 2–3 linhas de altura, mantendo a mesma informação.
+
 ## [Não versionado] — 2026-08-13
 ### Adicionado
 - Coluna **Status** (🟡 Pendente / 🟢 Entregue) na aba Pedidos Especiais, calculada automaticamente a partir da Data de entrega.
