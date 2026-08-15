@@ -40,8 +40,8 @@
     border-bottom:1px solid var(--line);
     background:linear-gradient(180deg, #1E2A38 0%, #223347 100%);
     color:#F3EFE3;
-    padding:34px 0 26px;
-    margin-bottom:26px;
+    padding:20px 0 18px;
+    margin-bottom:22px;
   }
   .hero-top{display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:16px;}
   .hero-menu-row{ margin: 0 0 14px -20px; }
@@ -81,23 +81,30 @@
     width:100%; font-size:13.5px; padding:7px 8px; border:1px solid var(--line);
     border-radius:7px; background:#fbfbf8; font-family:'IBM Plex Sans',sans-serif; color:var(--ink);
   }
+  .status-badge{
+    display:inline-flex; align-items:center; gap:5px;
+    font-family:'IBM Plex Sans', sans-serif; font-size:12.5px; font-weight:600;
+    padding:5px 10px; border-radius:100px; white-space:nowrap;
+  }
+  .status-badge.status-ok{ background:#e5f2ef; color:var(--teal-dark); }
+  .status-badge.status-pending{ background:#faf3e3; color:var(--brass-dark); }
   .hero-title-block .eyebrow{
     font-family:'IBM Plex Mono', monospace;
-    font-size:12px; letter-spacing:.14em; text-transform:uppercase;
-    color:var(--brass); margin:0 0 6px;
+    font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--brass); margin:0 0 4px;
   }
   h1{
     font-family:'Fraunces', serif;
     font-weight:600;
-    font-size:clamp(28px,4vw,40px);
-    margin:0 0 4px;
+    font-size:clamp(22px,3vw,29px);
+    margin:0 0 3px;
     letter-spacing:-0.01em;
   }
   .hero-title-block p.sub{
-    margin:0; color:#C9D2C6; font-size:14.5px; max-width:52ch;
+    margin:0; color:#C9D2C6; font-size:13px; max-width:56ch;
   }
   .sync-status{
-    margin:10px 0 0; font-family:'IBM Plex Mono', monospace; font-size:11.5px;
+    margin:6px 0 0; font-family:'IBM Plex Mono', monospace; font-size:11px;
     letter-spacing:.03em; color:#B9C2B6;
   }
   .sync-status.ok{ color:#7fd4c9; }
@@ -128,21 +135,21 @@
   /* ---------- Stat cards ---------- */
   .stats{
     display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(128px,1fr));
-    gap:10px;
-    margin-top:24px;
+    grid-template-columns:repeat(auto-fit, minmax(120px,1fr));
+    gap:8px;
+    margin-top:16px;
   }
   .stat{
     background:rgba(255,255,255,.06);
     border:1px solid rgba(255,255,255,.14);
-    border-radius:10px;
-    padding:12px 14px;
+    border-radius:9px;
+    padding:9px 12px;
   }
   .stat .num{
     font-family:'IBM Plex Mono', monospace;
-    font-size:26px; font-weight:600; color:#fff; line-height:1;
+    font-size:21px; font-weight:600; color:#fff; line-height:1;
   }
-  .stat .lbl{font-size:11.5px; color:#B9C2B6; margin-top:6px; letter-spacing:.02em;}
+  .stat .lbl{font-size:10.5px; color:#B9C2B6; margin-top:4px; letter-spacing:.02em;}
   .stat.accent .num{color:var(--brass);}
   .stat.accent2 .num{color:#7fd4c9;}
   .stat.warn .num{color:#e59a94;}
@@ -264,14 +271,23 @@
     padding:10px 6px; border-bottom:1px solid var(--line);
     background:#fafaf7;
   }
-  table.roster thead th.name-col{text-align:left; padding-left:18px;}
+  table.roster thead th.name-col{
+    text-align:left; padding-left:18px;
+    position:sticky; left:0; z-index:7; background:#fafaf7;
+  }
+  table.roster thead tr.group-header th:first-child{ position:sticky; left:0; z-index:7; background:#f2f3ec; }
   table.roster th.col-divider, table.roster td.col-divider{ border-left:2px solid var(--line); }
   table.roster tbody td{
     padding:10px 6px; text-align:center; border-bottom:1px solid #eceee8; vertical-align:middle;
   }
   table.roster tbody tr:last-child td{border-bottom:none;}
   table.roster tbody tr:hover{background:#f7f8f3;}
-  td.name-cell{ text-align:left; padding-left:18px; }
+  table.roster tbody tr:hover td.name-cell{background:#f7f8f3;}
+  td.name-cell{
+    text-align:left; padding-left:18px;
+    position:sticky; left:0; z-index:2; background:#fff;
+    box-shadow:2px 0 4px rgba(30,42,56,.05);
+  }
   td.name-cell .nm{ font-size:14.5px; font-weight:600; color:var(--ink); }
   td.name-cell .nm[contenteditable="true"]{
     outline:none; border-bottom:1px dashed transparent; cursor:text;
@@ -595,6 +611,7 @@
               <th class="col-divider">Tipo de publicação</th>
               <th class="col-divider">Data solicitação</th>
               <th>Data entrega</th>
+              <th class="col-divider">Status</th>
               <th></th>
             </tr>
           </thead>
@@ -1130,12 +1147,17 @@
     const options = ['<option value="">— selecione —</option>']
       .concat(PEDIDO_TIPOS.map(t => `<option value="${escapeHtml(t)}" ${p.tipo===t?'selected':''}>${escapeHtml(t)}</option>`))
       .join('');
+    const entregue = !!p.dataEntrega;
+    const statusBadge = entregue
+      ? '<span class="status-badge status-ok">🟢 Entregue</span>'
+      : '<span class="status-badge status-pending">🟡 Pendente</span>';
     return `
       <tr data-id="${p.id}">
         <td class="name-cell"><span class="nm" contenteditable="true" data-field="nome">${escapeHtml(p.nome)}</span></td>
         <td class="col-divider"><select class="pedido-select" data-field="tipo">${options}</select></td>
         <td class="col-divider"><input type="date" class="pedido-date" data-field="dataSolicitacao" value="${p.dataSolicitacao||''}"></td>
         <td><input type="date" class="pedido-date" data-field="dataEntrega" value="${p.dataEntrega||''}"></td>
+        <td class="col-divider">${statusBadge}</td>
         <td class="actions-cell"><button class="del-btn" data-del-pedido="${p.id}" title="Remover pedido">✕</button></td>
       </tr>`;
   }
@@ -1182,6 +1204,7 @@
         if(!rec) return;
         rec[el.getAttribute('data-field')] = el.value;
         save();
+        renderPedidosView();
       });
     });
 

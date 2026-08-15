@@ -79,3 +79,18 @@ Se algum dia quiser desativar, é só deixar `FIREBASE_CONFIG` como estava (com 
 ## Testar localmente antes de publicar
 
 Basta dar duplo clique no arquivo `index.html` — abre direto no navegador (Chrome, Edge, etc.), sem precisar de internet nem instalação.
+
+## Processo para alterações no projeto
+
+Toda mudança no site (`index.html`, `README.md` etc.) segue esta ordem, **sempre nessa sequência**:
+
+1. **Registrar no `CHANGELOG.md`** — antes de subir qualquer alteração, adicione uma entrada no topo desse arquivo descrevendo o que mudou (o que foi Adicionado / Alterado / Removido / Corrigido). O `CHANGELOG.md` já tem um modelo pronto pra copiar.
+2. **Abrir um Pull Request (PR)** em vez de subir direto na branch `main`. Passo a passo pelo site do GitHub:
+   - Vá em **Add file → Upload files**.
+   - Antes de arrastar os arquivos, troque a branch (o seletor que normalmente mostra `main`) por **"Create a new branch"**, dê um nome curto (ex.: `atualizacao-2026-08-13`).
+   - Arraste os arquivos atualizados (incluindo o `CHANGELOG.md` com a entrada nova) e confirme o commit nessa branch nova.
+   - O GitHub vai oferecer um botão **"Compare & pull request"** — clique nele, confira a descrição (pode citar a entrada do changelog) e clique em **"Create pull request"**.
+   - Revise as mudanças na aba "Files changed" e, quando estiver tudo certo, clique em **"Merge pull request"** → **"Confirm merge"**.
+3. Só depois do merge o GitHub Pages atualiza o site (~1 minuto).
+
+Isso cria um pequeno "histórico revisável" de tudo que já foi feito, em vez de sobrescrever direto o arquivo principal.
